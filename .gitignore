@@ -454,3 +454,7 @@ MigrationBackup/
 .ionide/
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudio,visualstudiocode,pycharm+all
+
+#Enviorment Based Commits (all pushing our own enviorments so we should be good)
+venv/
+flask_app/venv/
