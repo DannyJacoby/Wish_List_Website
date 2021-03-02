@@ -1,5 +1,5 @@
 # Removing package-lock.json from push since we have all dependencies atm
-./react-flask-app/package-lock.json
+# ./react-flask-app/package-lock.json
 
 ### PyCharm+all ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
