@@ -7,15 +7,33 @@ import time
 # basically, if change "api", change Procfile's (web: gunicorn app:api) api's to new thing
 api = Flask(__name__, static_folder='frontend/build', static_url_path='')
 
+
+# DB Configuration Stuff
+api.config['MYSQL_HOST'] = 'lyn7gfxo996yjjco.cbetxkdyhwsb.us-east-1.rds.amazonaws.com'
+api.config['MYSQL_USER'] = 'ur143du8y37j5on7'
+api.config['MYSQL_PASSWORD'] = 'phg6fzcay1hq1kon'
+api.config['MYSQL_DB'] = 'n5msszwbmtsqj22r'
+mysql = MySQL(api)
+
+
 @api.route("/time")
 @cross_origin()
 def get_current_time():
     return {"time": time.time()}
 
-@api.route('/')
+@api.route('/', methods=['GET','POST'])
 @cross_origin()
 def index():
-    return "<h1>Welcome to our Server!!</h1>"
+    firstname = "shwan"
+    lastname = "johnson"
+    success = false
+    if request.method == "POST":
+        cur = mysql.connenction.cursor()
+        cur.execute("INSERT INTO myusers(firstname, lastname) VALUES (%s, %s)", (firstname, lastname))
+        mysql.connection.commit()
+        cur.close()
+        return 'success'
+    return "<h1>Welcome to our Server " + firtname + " " + lastname + "!! You " + (if success "have not " else "have ") + " been added!</h1>"
 
 @api.route('/index')
 @cross_origin()
