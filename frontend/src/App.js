@@ -6,7 +6,7 @@ function App() {
   const [currentTime, setCurrentTime] = useState(0);
 
   useEffect(() => {
-    fetch("http://localhost:5000/flask/time").then(res => res.json()).then(data => {
+    fetch("http://localhost:5000/time").then(res => res.json()).then(data => {
       setCurrentTime(data.time);
     });
   }, []);
