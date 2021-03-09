@@ -26,15 +26,16 @@ def get_current_time():
 def index():
     firstname = "shwan"
     lastname = "johnson"
-    success = false
+    success = False
     if request.method == "POST":
         cur = mysql.connenction.cursor()
         cur.execute("INSERT INTO myusers(firstname, lastname) VALUES (%s, %s)", (firstname, lastname))
         mysql.connection.commit()
         cur.close()
+        success = True
         return 'success'
-    successString = if success "have " else "have not"
-    return "<h1>Welcome to our Server " + firtname + " " + lastname + "!! You " + successString + " been added!</h1>"
+    Str = "have " if success else "have not"
+    return "<h1>Welcome to our Server " + firtname + " " + lastname + "!! You " + Str + " been added!</h1>"
 
 @api.route('/index')
 @cross_origin()
