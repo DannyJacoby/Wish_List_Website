@@ -2,7 +2,7 @@ from flask import Flask, send_from_directory
 from flask_cors import CORS, cross_origin
 import time
 
-api = Flask(__name__, static_folder='./build', static_url_path='/')
+app = Flask(__name__, static_folder='./build', static_url_path='/')
 
 @app.route("/time")
 @cross_origin()
