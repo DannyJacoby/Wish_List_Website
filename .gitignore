@@ -220,16 +220,11 @@ ipch/
 # Visual Studio Trace Files
 *.e2e
 
-<<<<<<< HEAD
 # Node
 node_modules/
 
 # Jupyter Notebook
 .ipynb_checkpoints
-=======
-# TFS 2012 Local Workspace
-/
->>>>>>> 6f9cf475f339f4c92c864244e0e46d21ee874e20
 
 # Guidance Automation Toolkit
 *.gpState

@@ -7,7 +7,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-<<<<<<< HEAD
 .header {
   display: flex;
   justify-content: space-between;
@@ -39,8 +38,6 @@ body {
   font-family: inherit;
 }
 
-=======
->>>>>>> 6f9cf475f339f4c92c864244e0e46d21ee874e20
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
