@@ -1,5 +1,6 @@
 from flask import Flask, send_from_directory
 from flask_cors import CORS, cross_origin
+from pymysql import MySQL
 import time
 
 # As a note, all references to flask's app, hereby called api, is the app name in Procfile, 
@@ -9,11 +10,11 @@ api = Flask(__name__, static_folder='frontend/build', static_url_path='')
 
 
 # DB Configuration Stuff
-api.config['MYSQL_HOST'] = 'lyn7gfxo996yjjco.cbetxkdyhwsb.us-east-1.rds.amazonaws.com'
-api.config['MYSQL_USER'] = 'ur143du8y37j5on7'
-api.config['MYSQL_PASSWORD'] = 'phg6fzcay1hq1kon'
-api.config['MYSQL_DB'] = 'n5msszwbmtsqj22r'
-mysql = MySQL(api)
+# api.config['MYSQL_HOST'] = 'lyn7gfxo996yjjco.cbetxkdyhwsb.us-east-1.rds.amazonaws.com'
+# api.config['MYSQL_USER'] = 'ur143du8y37j5on7'
+# api.config['MYSQL_PASSWORD'] = 'phg6fzcay1hq1kon'
+# api.config['MYSQL_DB'] = 'n5msszwbmtsqj22r'
+# mysql = MySQL(api)
 
 
 @api.route("/time")
@@ -24,18 +25,19 @@ def get_current_time():
 @api.route('/', methods=['GET','POST'])
 @cross_origin()
 def index():
-    firstname = "shwan"
-    lastname = "johnson"
-    success = False
-    if request.method == "POST":
-        cur = mysql.connenction.cursor()
-        cur.execute("INSERT INTO myusers(firstname, lastname) VALUES (%s, %s)", (firstname, lastname))
-        mysql.connection.commit()
-        cur.close()
-        success = True
-        return 'success'
-    Str = "have " if success else "have not"
-    return "<h1>Welcome to our Server " + firtname + " " + lastname + "!! You " + Str + " been added!</h1>"
+    # firstname = "shwan"
+    # lastname = "johnson"
+    # success = False
+    # if request.method == "POST":
+    #     cur = mysql.connenction.cursor()
+    #     cur.execute("INSERT INTO myusers(firstname, lastname) VALUES (%s, %s)", (firstname, lastname))
+    #     mysql.connection.commit()
+    #     cur.close()
+    #     success = True
+    #     return 'success'
+    # Str = "have " if success else "have not"
+    # return "<h1>Welcome to our Server " + firtname + " " + lastname + "!! You " + Str + " been added!</h1>"
+    return "<h1>Welcome to our Server been added!</h1>"
 
 @api.route('/index')
 @cross_origin()
