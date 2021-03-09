@@ -33,7 +33,8 @@ def index():
         mysql.connection.commit()
         cur.close()
         return 'success'
-    return "<h1>Welcome to our Server " + firtname + " " + lastname + "!! You " + (if success "have not " else "have ") + " been added!</h1>"
+    successString = if success "have " else "have not"
+    return "<h1>Welcome to our Server " + firtname + " " + lastname + "!! You " + successString + " been added!</h1>"
 
 @api.route('/index')
 @cross_origin()
