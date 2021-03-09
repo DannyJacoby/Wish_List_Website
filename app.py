@@ -2,6 +2,9 @@ from flask import Flask, send_from_directory
 from flask_cors import CORS, cross_origin
 import time
 
+# As a note, all references to flask's app, hereby called api, is the app name in Procfile, 
+# while this file's name is the name bit of Procfile
+# basically, if change "api", change Procfile's (web: gunicorn app:api) api's to new thing
 api = Flask(__name__, static_folder='frontend/build', static_url_path='')
 
 @api.route("/time")
