@@ -5,7 +5,6 @@ from flask_cors import CORS
 from flask_session import Session
 
 from middleware import logged_in, is_admin
-# from pymysql import MySQL
 
 # As a note, all references to flask's app, hereby called api, is the app name in Procfile,
 # while this file's name is the name bit of Procfile
@@ -30,17 +29,6 @@ def get_current_time():
 @api.route("/")
 @api.route("/index")
 def index():
-    # firstname = "shwan"
-    # lastname = "johnson"
-    # success = False
-    # if request.method == "POST":
-    #     cur = mysql.connenction.cursor()
-    #     cur.execute("INSERT INTO myusers(firstname, lastname) VALUES (%s, %s)", (firstname, lastname))
-    #     mysql.connection.commit()
-    #     cur.close()
-    #     success = True
-    #     return 'success'
-    # Str = "have " if success else "have not"
     return api.send_static_file("index.html")
 
 
