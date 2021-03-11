@@ -1,6 +1,6 @@
 from flask import Flask, send_from_directory
 from flask_cors import CORS, cross_origin
-from pymysql import MySQL
+# from pymysql import MySQL
 import time
 
 # As a note, all references to flask's app, hereby called api, is the app name in Procfile, 
