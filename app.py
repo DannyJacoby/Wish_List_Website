@@ -1,24 +1,11 @@
 import time
-from datetime import date
 
 from flask import Flask, request, redirect, url_for, session, send_from_directory
 from flask_cors import CORS
 from flask_session import Session
-from flask_sqlalchemy import SQLAlchemy
 
 from middleware import logged_in, is_admin
 
-# /*MySQL DB -- Local Server Connection Config*/
-# // function localConnection() {
-# //   let con = mysql.createConnection({
-# //     hots:'localhost',
-# //     user:'daniel',
-# //     password:'password',
-# //     database:'quotes'
-# //   });
-# //
-# //   return con;
-# // }
 
 # As a note, all references to flask's app, hereby called api, is the app name in Procfile,
 # while this file's name is the name bit of Procfile
@@ -26,80 +13,79 @@ from middleware import logged_in, is_admin
 api = Flask(__name__, static_folder="frontend/build", static_url_path="")
 CORS(api)
 Session(api)
-api.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://daniel:password@localhost/master'
-db = SQLAlchemy(api)
 
 
-# class User(db.Model):
-#     userId = db.Column(db.Integer, primary_key=True)
-#     username = db.Column(db.String(80), unique=True, nullable=False)
-#     userpassword = db.Column(db.String(80), nullable=False)
-#     isAdmin = db.Column(db.Integer)
+# DB Configuration Stuff
+# api.config['MYSQL_HOST'] = 'lyn7gfxo996yjjco.cbetxkdyhwsb.us-east-1.rds.amazonaws.com'
+# api.config['MYSQL_USER'] = 'ur143du8y37j5on7'
+# api.config['MYSQL_PASSWORD'] = 'phg6fzcay1hq1kon'
+# api.config['MYSQL_DB'] = 'n5msszwbmtsqj22r'
+# mysql = MySQL(api)
+
 
 @api.route("/time")
 def get_current_time():
-    return {"time": date.today()}
+    return {"time": time.time()}
 
 @api.route("/")
 @api.route("/index")
 def index():
     return api.send_static_file("index.html")
 
-# @api.route("/login", methods=["GET", "POST"])
-# def login():
-#     if request.method == "GET":
-#         return api.send_static_file("login.html")
+@api.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "GET":
+        return api.send_static_file("login.html")
 
-#     # POST
-#     else:
-#         return redirect(url_for("profile"))
-#     #   username = request.form.get("user")
-#     #   password = request.form.get("pass")
-#     # TODO: check if the user entered valid credentials
-#     #      - on success: set up their session and redirect to the landing page
-#     #      - on failure: render an error message
-
-
-# @api.route('/logout')
-# def logout():
-#     session.pop('username', None)
-#     return redirect(url_for('index'))
+    # POST
+    else:
+        return redirect(url_for("profile"))
+    #   username = request.form.get("user")
+    #   password = request.form.get("pass")
+    # TODO: check if the user entered valid credentials
+    #      - on success: set up their session and redirect to the landing page
+    #      - on failure: render an error message
 
 
-# @api.route("/create_account", methods=["GET", "POST"])
-# def create_account():
-#     if request.method == "GET":
-#         return api.send_static_file("create_account.html")
-
-#     # POST
-#     else:
-#         return redirect(url_for("profile"))
-#     #     username = request.form.get("user")
-#     #     password = request.form.get("pass")
-#     # TODO: check if the user entered valid credentials
-#     #      - on success: add them to the db and redirect to the landing page
-#     #      - on failure: render an error message
+@api.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('index'))
 
 
-# @api.route("/profile")
-# @logged_in
-# def profile():
-#     # TODO: add middleware so only logged in admin users can see this page
-#     return api.send_static_file("profile.html")
+@api.route("/create_account", methods=["GET", "POST"])
+def create_account():
+    if request.method == "GET":
+        return api.send_static_file("create_account.html")
+
+    # POST
+    else:
+        return redirect(url_for("profile"))
+    #     username = request.form.get("user")
+    #     password = request.form.get("pass")
+    # TODO: check if the user entered valid credentials
+    #      - on success: add them to the db and redirect to the landing page
+    #      - on failure: render an error message
 
 
-# @api.route("/admin")
-# @logged_in
-# @is_admin
-# def admin():
-#     # TODO: add middleware function to make sure that a user must be logged
-#     #       in to see this page, and that they can only see their page
-#     return api.send_static_file("admin.html")
+@api.route("/profile")
+@logged_in
+def profile():
+    # TODO: add middleware so only logged in admin users can see this page
+    return api.send_static_file("profile.html")
 
 
+@api.route("/admin")
+@logged_in
+@is_admin
+def admin():
+    # TODO: add middleware function to make sure that a user must be logged
+    #       in to see this page, and that they can only see their page
+    return api.send_static_file("admin.html")
+  
 @api.errorhandler(404)
 def not_found(e):
-    return api.send_static_file("error.html")
+    return api.send_static_file("index.html")
 
 if __name__ == '__main__':
     api.run()

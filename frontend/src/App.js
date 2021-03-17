@@ -5,7 +5,7 @@ import Button from './components/Button';
 import { NavLink, Switch, Route, Router } from 'react-router-dom';
 import { BrowserRouter } from 'react-router-dom';
 
-// var herokuURL="https://wishlist-cst438.herokuapp.com/time"
+var herokuURL="https://wishlist-cst438.herokuapp.com/time"
 var localHost="http://localhost:5000/time"
 
 function App() {
