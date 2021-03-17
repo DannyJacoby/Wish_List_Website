@@ -6,12 +6,14 @@ from flask_session import Session
 
 from middleware import logged_in, is_admin
 
+
 # As a note, all references to flask's app, hereby called api, is the app name in Procfile,
 # while this file's name is the name bit of Procfile
 # basically, if change "api", change Procfile's (web: gunicorn app:api) api's to new thing
 api = Flask(__name__, static_folder="frontend/build", static_url_path="")
 CORS(api)
 Session(api)
+
 
 # DB Configuration Stuff
 # api.config['MYSQL_HOST'] = 'lyn7gfxo996yjjco.cbetxkdyhwsb.us-east-1.rds.amazonaws.com'
@@ -25,12 +27,10 @@ Session(api)
 def get_current_time():
     return {"time": time.time()}
 
-
 @api.route("/")
 @api.route("/index")
 def index():
     return api.send_static_file("index.html")
-
 
 @api.route("/login", methods=["GET", "POST"])
 def login():
@@ -82,8 +82,7 @@ def admin():
     # TODO: add middleware function to make sure that a user must be logged
     #       in to see this page, and that they can only see their page
     return api.send_static_file("admin.html")
-
-
+  
 @api.errorhandler(404)
 def not_found(e):
     return api.send_static_file("index.html")
