@@ -17,8 +17,6 @@ CORS(api)
 Session(api)
 
 
-
-
 def _session_create(username, is_admin):
     session["user"] = username
     session["is_admin"] = is_admin
@@ -27,7 +25,6 @@ def _session_create(username, is_admin):
 def _session_destroy():
     session.pop("user", None)
     session.pop("is_admin", None)
-
 
 @api.route("/time")
 def get_current_time():
@@ -106,12 +103,9 @@ def not_found(e):
 
 
 if __name__ == '__main__':
-    # put all "to be run" stuff
+    # put all "to be run"
     api.run()
     # api.run(host='0.0.0.0', debug=False, port=os.environ.get('PORT', 80))
 
-
-function runMe(){
-
-}
-
+def setupApp():
+    return 0
