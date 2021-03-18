@@ -1,11 +1,13 @@
-import time
-
+# Flask/DB Imports
 from flask import Flask, request, redirect, url_for, session, send_from_directory
 from flask_cors import CORS
 from flask_session import Session
 
-from middleware import logged_in, is_admin
 
+
+# Non Flask/DB imports
+import time
+from middleware import logged_in, is_admin
 
 # As a note, all references to flask's app, hereby called api, is the app name in Procfile,
 # while this file's name is the name bit of Procfile
@@ -13,6 +15,9 @@ from middleware import logged_in, is_admin
 api = Flask(__name__, static_folder="frontend/build", static_url_path="")
 CORS(api)
 Session(api)
+
+
+
 
 
 @api.route("/time")
@@ -80,5 +85,12 @@ def not_found(e):
     return api.send_static_file("index.html")
 
 if __name__ == '__main__':
+    # put all "to be run" stuff
     api.run()
     # api.run(host='0.0.0.0', debug=False, port=os.environ.get('PORT', 80))
+
+
+function runMe(){
+
+}
+
