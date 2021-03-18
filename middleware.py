@@ -13,7 +13,7 @@ def logged_in(func):
     return decorated_function
 
 
-def admin(func):
+def is_admin(func):
     @wraps(func)
     def decorated_function(*args, **kwargs):
         if session["is_admin"]:
