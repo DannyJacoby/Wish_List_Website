@@ -1,10 +1,11 @@
-import time
-
-from flask import Flask, request, redirect, Response, url_for, session
+# Flask/DB Imports
+from flask import Flask, request, redirect, url_for, session, send_from_directory
 from flask_cors import CORS
 from flask_session import Session
 
-from middleware import logged_in, admin
+# Non Flask/DB imports
+import time
+from middleware import logged_in, is_admin
 
 # As a note, all references to flask's app, hereby called api, is the app name in Procfile,
 # while this file's name is the name bit of Procfile
@@ -16,12 +17,7 @@ CORS(api)
 Session(api)
 
 
-# DB Configuration Stuff
-# api.config['MYSQL_HOST'] = 'lyn7gfxo996yjjco.cbetxkdyhwsb.us-east-1.rds.amazonaws.com'
-# api.config['MYSQL_USER'] = 'ur143du8y37j5on7'
-# api.config['MYSQL_PASSWORD'] = 'phg6fzcay1hq1kon'
-# api.config['MYSQL_DB'] = 'n5msszwbmtsqj22r'
-# mysql = MySQL(api)
+
 
 def _session_create(username, is_admin):
     session["user"] = username
@@ -110,5 +106,12 @@ def not_found(e):
 
 
 if __name__ == '__main__':
+    # put all "to be run" stuff
     api.run()
     # api.run(host='0.0.0.0', debug=False, port=os.environ.get('PORT', 80))
+
+
+function runMe(){
+
+}
+
