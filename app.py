@@ -15,14 +15,6 @@ CORS(api)
 Session(api)
 
 
-# DB Configuration Stuff
-# api.config['MYSQL_HOST'] = 'lyn7gfxo996yjjco.cbetxkdyhwsb.us-east-1.rds.amazonaws.com'
-# api.config['MYSQL_USER'] = 'ur143du8y37j5on7'
-# api.config['MYSQL_PASSWORD'] = 'phg6fzcay1hq1kon'
-# api.config['MYSQL_DB'] = 'n5msszwbmtsqj22r'
-# mysql = MySQL(api)
-
-
 @api.route("/time")
 def get_current_time():
     return {"time": time.time()}
