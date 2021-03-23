@@ -1,7 +1,9 @@
 # Flask/DB Imports
-from flask import Flask, request, redirect, url_for, session, render_template, Response
+from flask import Flask, request, redirect, url_for, session, render_template
 from flask_cors import CORS
 from flask_session import Session
+from sqlalchemy import create_engine, Table, MetaData
+import cymysql
 
 # Non Flask/DB imports
 import time
@@ -10,12 +12,18 @@ from middleware import logged_in, is_admin
 # As a note, all references to flask's app, hereby called api, is the app name in Procfile,
 # while this file's name is the name bit of Procfile
 # basically, if change "api", change Procfile's (web: gunicorn app:api) api's to new thing
-api = Flask(__name__, template_folder="frontend/templates", static_url_path="")
+api = Flask(__name__, template_folder="frontend/templates/", static_url_path="")
 api.secret_key = "eTmic_1_EPw8UTpxt7xMJQ"
 api.config["SESSION_TYPE"] = "filesystem"
 CORS(api)
 Session(api)
 
+herokuConnection = 'mysql+cymysql://user:password@db'
+localHostConnection = 'mysql+cymysql://root:password@localhost/master'
+
+engine = create_engine('mysql+cymysql://root:password@localhost/master', convert_unicode=True)
+
+con = engine.connect()
 
 def _session_create(username, is_admin):
     session["user"] = username
@@ -26,7 +34,6 @@ def _session_destroy():
     session.pop("user", None)
     session.pop("is_admin", None)
 
-
 @api.route("/time")
 def get_current_time():
     return {"time": time.time()}
@@ -35,13 +42,13 @@ def get_current_time():
 @api.route("/")
 @api.route("/index")
 def index():
-    return render_template("index.html", message="foo")
+    return render_template("index.html")
 
 
 @api.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
-        return api.send_static_file("login.html")
+        return render_template("login.html")
 
     # POST
     else:
@@ -66,7 +73,7 @@ def logout():
 @api.route("/create_account", methods=["GET", "POST"])
 def create_account():
     if request.method == "GET":
-        return api.send_static_file("create_account.html")
+        return render_template("create_account.html")
 
     # POST
     else:
@@ -86,7 +93,7 @@ def create_account():
 @logged_in
 def profile():
     # TODO: add middleware so only logged in admin users can see this page
-    return api.send_static_file("profile.html")
+    return render_template("profile.html")
 
 
 @api.route("/admin")
@@ -95,19 +102,18 @@ def profile():
 def admin():
     # TODO: add middleware function to make sure that a user must be logged
     #       in to see this page, and that they can only see their page
-    return api.send_static_file("admin.html")
+    return render_template("admin.html")
 
 
 @api.errorhandler(404)
 def not_found(e):
-    return api.send_static_file("index.html")
+    return render_template("error.html")
 
 
 if __name__ == '__main__':
     # put all "to be run"
     api.run()
     # api.run(host='0.0.0.0', debug=False, port=os.environ.get('PORT', 80))
-
 
 def setupApp():
     return 0
