@@ -18,12 +18,19 @@ api.config["SESSION_TYPE"] = "filesystem"
 CORS(api)
 Session(api)
 
-herokuConnection = 'mysql+cymysql://user:password@db'
+herokuConnection = 'mysql+cymysql://ur143du8y37j5on7:phg6fzcay1hq1kon@lyn7gfxo996yjjco.cbetxkdyhwsb.us-east-1.rds.amazonaws.com/n5msszwbmtsqj22r'
 localHostConnection = 'mysql+cymysql://root:password@localhost/master'
 
-engine = create_engine('mysql+cymysql://root:password@localhost/master', convert_unicode=True)
+engine = create_engine(herokuConnection, convert_unicode=True)
+
+metadata = MetaData(bind=engine)
+
+users = Table('user', metadata, autoload=True)
+lists = Table('list', metadata, autoload=True)
+items = Table('item', metadata, autoload=True)
 
 con = engine.connect()
+
 
 def _session_create(username, is_admin):
     session["user"] = username
@@ -36,7 +43,8 @@ def _session_destroy():
 
 @api.route("/time")
 def get_current_time():
-    return {"time": time.time()}
+    return {"time": time.time(),
+            "user1": users.select(users.c.userid == 1).execute().first()}
 
 
 @api.route("/")
