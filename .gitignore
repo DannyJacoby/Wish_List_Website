@@ -480,3 +480,4 @@ MigrationBackup/
 
 #Enviorment Based Commits (all pushing our own enviorments so we should be good)
 venv/
+flask_session/
