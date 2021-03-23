@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Account</title>
+</head>
+<body>
+    <nav>
+        <form action="/profile"><button>Profile</button></form><br>
+        <form action="/login"><button>Login</button></form><br>
+        <form action="/create_account"><button>Create Account</button></form><br>
+    </nav>
+    <img src="../img/wishlist_logo.png" alt="Logo">
+    <h1>Create Account</h1>
+    <form method="POST" action="/create_account">
+        <label for="user">Username:</label><br>
+        <input type="text" id="user" name="user"><br>
+        <label for="pass">Password:</label><br>
+        <input type="password" id="pass" name="pass"><br>
+        <input type="submit" value="Create Account">
+    </form>
+  </body>
+</html>
