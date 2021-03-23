@@ -1,5 +1,5 @@
 # Flask/DB Imports
-from flask import Flask, request, redirect, url_for, session, render_template
+from flask import Flask, Response, request, redirect, url_for, session, render_template
 from flask_cors import CORS
 from flask_session import Session
 from sqlalchemy import create_engine, Table, MetaData
@@ -12,7 +12,7 @@ from middleware import logged_in, is_admin
 # As a note, all references to flask's app, hereby called api, is the app name in Procfile,
 # while this file's name is the name bit of Procfile
 # basically, if change "api", change Procfile's (web: gunicorn app:api) api's to new thing
-api = Flask(__name__, template_folder="frontend/templates/", static_url_path="")
+api = Flask(__name__, template_folder="frontend/templates", static_folder="frontend/static")
 api.secret_key = "eTmic_1_EPw8UTpxt7xMJQ"
 api.config["SESSION_TYPE"] = "filesystem"
 CORS(api)
