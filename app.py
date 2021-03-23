@@ -25,12 +25,18 @@ engine = create_engine(herokuConnection, convert_unicode=True)
 
 metadata = MetaData(bind=engine)
 
+# use this to call and find any users/lists/items, have to test about too many pings to DB issue (normally present in 336 final)
 users = Table('user', metadata, autoload=True)
 lists = Table('list', metadata, autoload=True)
 items = Table('item', metadata, autoload=True)
 
 con = engine.connect()
 
+# list of columns in DB
+# users - userid [INT]; username [string 45]; userpassword [string 45]; isadmin [1 is true, 0 is false]
+# lists - primarylistid [INT]; listid [INT]; userid [INT]; itemid [INT]; itemposition [INT]; priority [1 is true, 0 is false]
+# items - itemid [INT]; url [string 500]; description [string 500]; imageurl [string 500]; title [string 100]
+# all DB query calls can be referenced here https://flask.palletsprojects.com/en/1.1.x/patterns/sqlalchemy/
 
 def _session_create(username, is_admin):
     session["user"] = username
@@ -43,8 +49,12 @@ def _session_destroy():
 
 @api.route("/time")
 def get_current_time():
-    return {"time": time.time(),
-            "user1": users.select(users.c.userid == 1).execute().first()}
+    user1name = users.select(users.c.userid == 1).execute().first()
+
+    return {
+        "time": time.time(),
+        "user1": user1name['userpassword']
+            }
 
 
 @api.route("/")
