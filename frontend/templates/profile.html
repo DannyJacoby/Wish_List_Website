@@ -12,7 +12,8 @@
     </nav>
 
     <img src="../static/img/wishlist_logo.png" alt="Logo">
-    <button type="button" formaction="index.html">Logout</button><br>
+    <form action="/logout"><button>Logout</button></form>
+    <br>
     <h1>Welcome back, {{ user["username"] }}!</h1>
     <form method="POST" action="/create_account">
       <label for="email">New Email:</label><br>

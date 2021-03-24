@@ -114,11 +114,7 @@ def create_account():
         new_email = request.form.get("email")
         new_password = request.form.get("pass")
 
-        print("user: " + new_username + " pass: " + new_password + " email: " + new_email)
-
         user = users.select(users.c.username == new_username and users.c.userpassword == new_password and users.c.email == new_email).execute().first()
-
-        print(user)
 
         con.execute(users.insert(), username=new_username, userpassword=new_password, email=new_email, isadmin=0)
 
@@ -127,9 +123,7 @@ def create_account():
         except Exception:
             print(Exception)
 
-        print(user + " I've gotten here 1")
         if user != None:
-            print("I've gotten here 2")
             _session_create(user['username'], user['isadmin'] == 1, user['userid'])
             return redirect(url_for("profile"))
 
