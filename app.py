@@ -83,7 +83,7 @@ def login():
         # put sql here
 
         if username == "user_in_db":
-            _session_create(username, False, 0)
+            _session_create(username, True, 0)
             return redirect(url_for("profile"))
 
         else:
@@ -110,11 +110,11 @@ def create_account():
         # put sql here
 
         if username != "user_in_db":
-            _session_create(username, False, 0)
+            _session_create(username, True, 0)
             return redirect(url_for("profile"))
 
         else:
-            return render_template("login.html", create_failed=True, message=f"Username: {username} is already taken!")
+            return render_template("create_account.html", create_failed=True, message=f"Username: {username} is already taken!")
 
 
 @api.route("/profile", methods=["GET", "PUT", "DELETE"])
@@ -199,11 +199,11 @@ def modify_wishlist(list_id):
         })
 
     elif request.method == "POST":
-        return redirect(url_for("profile.html", list_modified={"id": 3, "action": "added", "success": True}))
+        return redirect(url_for("profile", list_modified={"id": 3, "action": "added", "success": True}))
 
     # DELETE
     else:
-        return redirect(url_for("profile.html", list_modified={"id": 3, "action": "deleted", "success": True}))
+        return redirect(url_for("profile", list_modified={"id": 3, "action": "deleted", "success": True}))
 
 
 # ------------------------------------- Item Related Routes -------------------------------------
@@ -233,12 +233,12 @@ def modify_wishlist_item(list_id, item_id):
 
     elif request.method == "POST":
         return redirect(
-            url_for("/wishlist", list_id=list_id, list_modified={"id": 3, "action": "added", "success": True}))
+            url_for("view_wishlist", list_id=list_id, list_modified={"id": 3, "action": "added", "success": True}))
 
     # DELETE
     else:
         return redirect(
-            url_for("/wishlist", list_id=list_id, list_modified={"id": 3, "action": "deleted", "success": True}))
+            url_for("view_wishlist", list_id=list_id, list_modified={"id": 3, "action": "deleted", "success": True}))
 
 
 # ------------------------------------- Admin Related Routes -------------------------------------

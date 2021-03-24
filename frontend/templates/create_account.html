@@ -12,7 +12,7 @@
     </nav>
     <img src="../static/img/wishlist_logo.png" alt="Logo">
     <h1>Create Account</h1>
-    <form method="POST" action="/create_account">
+    <form method="POST" action="/account/create">
         <label for="email">Email:</label><br>
         <input type="text" id="email" name="email"><br>
         <label for="user">Username:</label><br>
@@ -23,6 +23,9 @@
         <input type="submit" value="Create Account">
     </form>
 
+    {% if create_failed %}
+    <p class="error"><strong>{{ message }}</strong></p>
+    {% endif %}
     <br><br>
     <p class="bottom">Already have an account?  <a class="bottom" href="{{url_for('login')}}"> Login here</a></p>
   </body>
