@@ -1,5 +1,7 @@
 # Flask/DB Imports
 from flask import Flask, request, redirect, url_for, session, render_template
+from sqlalchemy.sql.elements import Null
+from sqlalchemy.sql.selectable import Select
 from flask_cors import CORS
 from flask_session import Session
 from sqlalchemy import create_engine, Table, MetaData
@@ -34,8 +36,8 @@ items = Table('item', metadata, autoload=True)
 con = engine.connect()
 
 # list of columns in DB
-# users - userid [INT]; username [string 45]; userpassword [string 45]; isadmin [1 is true, 0 is false]
-# lists - primarylistid [INT]; listid [INT]; userid [INT]; itemid [INT]; itemposition [INT]; priority [1 is true, 0 is false]
+# users - userid [INT]; username [string 45]; email [string 200]; userpassword [string 45]; isadmin [1 is true, 0 is false]
+# lists - primarylistid [INT]; listname [string 100]; listid [INT]; userid [INT]; itemid [INT]; itemposition [INT]; priority [1 is true, 0 is false]
 # items - itemid [INT]; url [string 500]; description [string 500]; imageurl [string 500]; title [string 100]
 # all DB query calls can be referenced here https://flask.palletsprojects.com/en/1.1.x/patterns/sqlalchemy/
 
@@ -53,11 +55,9 @@ def _session_destroy():
 
 @api.route("/time")
 def get_current_time():
-    user1name = users.select(users.c.userid == 1).execute().first()
-
     return {
         "time": time.time(),
-        "user1": user1name['userpassword']
+        "user1": 'userpassword'
             }
 
 
@@ -72,22 +72,28 @@ def index():
 
 @api.route("/login", methods=["GET", "POST"])
 def login():
+    login_page = "login.html"
     if request.method == "GET":
-        return render_template("login.html")
+        return render_template(login_page)
 
     # POST
     else:
         username = request.form.get("user")
         password = request.form.get("pass")
-        
-        # put sql here
+        print("user: " + username + " pass: " + password)
 
-        if username == "user_in_db":
-            _session_create(username, False, 0)
+        try:
+            user = users.select(users.c.username == username and users.c.userpassword == password).execute().first()
+        except Exception:
+            print(Exception)
+
+        if user != None:
+            
+            _session_create(user['username'], user['isadmin'] == 1, user['userid'])
             return redirect(url_for("profile"))
 
         else:
-            return render_template("login.html", login_failed=True, message="Username and Password not found!")
+            return render_template(login_page, login_failed=True, message="Username and Password not found!")
 
 
 @api.route('/logout')
@@ -102,19 +108,33 @@ def create_account():
         return render_template("create_account.html")
 
     # POST
+    # We never get here atm
     else:
-        username = request.form.get("user")
-        email = request.form.get("email")
-        password = request.form.get("pass")
+        new_username = request.form.get("user")
+        new_email = request.form.get("email")
+        new_password = request.form.get("pass")
 
-        # put sql here
+        print("user: " + new_username + " pass: " + new_password + " email: " + new_email)
 
-        if username != "user_in_db":
-            _session_create(username, False, 0)
+        user = users.select(users.c.username == new_username and users.c.userpassword == new_password and users.c.email == new_email).execute().first()
+
+        print(user)
+
+        con.execute(users.insert(), username=new_username, userpassword=new_password, email=new_email, isadmin=0)
+
+        try:
+            user = users.select(users.c.username == new_username and users.c.userpassword == new_password and users.c.email == new_email).execute().first()
+        except Exception:
+            print(Exception)
+
+        print(user + " I've gotten here 1")
+        if user != None:
+            print("I've gotten here 2")
+            _session_create(user['username'], user['isadmin'] == 1, user['userid'])
             return redirect(url_for("profile"))
 
         else:
-            return render_template("login.html", create_failed=True, message=f"Username: {username} is already taken!")
+            return render_template("login.html", create_failed=True, message=f"Username: {new_username} is already taken!")
 
 
 @api.route("/profile", methods=["GET", "PUT", "DELETE"])
