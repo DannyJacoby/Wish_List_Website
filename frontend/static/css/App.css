@@ -30,6 +30,12 @@
     color: #61dafb;
 }
 
+.bottom{
+    color: #236B8E;
+    font-style: oblique;
+    font-weight: bold;
+}
+
 @keyframes App-logo-spin {
     from {
         transform: rotate(0deg);
