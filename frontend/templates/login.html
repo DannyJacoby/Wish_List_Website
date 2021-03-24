@@ -6,7 +6,7 @@
 </head>
 <body>
     <nav>
-        <form action="/profile"><button>Profile</button></form><br>
+        <form action="/"><button>Home</button></form><br>
         <form action="/login"><button>Login</button></form><br>
         <form action="/account/create"><button>Create Account</button></form><br>
     </nav>
@@ -17,11 +17,15 @@
       <input type="text" id="user" name="user"><br>
       <label for="pass">Password:</label><br>
       <input type="password" id="pass" name="pass"><br>
+      <br>
       <input type="submit" value="Login">
     </form>
 
     {% if login_failed %}
-        {{message}}
+      <p class="error"><strong>Error: Invalid username and/or password.</strong> {{ error }}
     {% endif %}
+
+    <br><br>
+    <p class="bottom">Dont't have an account?  <a class="bottom" href="{{url_for('create_account')}}"> Sign Up here</a></p>
   </body>
 </html>

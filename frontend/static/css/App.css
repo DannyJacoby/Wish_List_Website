@@ -30,21 +30,10 @@
     color: #61dafb;
 }
 
-nav {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    min-height: 10vh;
-    background: rgb(64, 82, 88);
-    color: white;
-}
-
-.nav-links {
-    width: 50%;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    list-style: none;
+.bottom{
+    color: #236B8E;
+    font-style: oblique;
+    font-weight: bold;
 }
 
 @keyframes App-logo-spin {
