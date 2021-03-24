@@ -13,9 +13,16 @@
 
     <img src="../static/img/wishlist_logo.png" alt="Logo">
     <button type="button" formaction="index.html">Logout</button><br>
-    <h1>Profile</h1>
-    <form action="/profile/edit">
-      <input type="submit" value="Edit Profile">
+    <h1>Welcome back, {{ user["username"] }}!</h1>
+    <form method="POST" action="/create_account">
+      <label for="email">New Email:</label><br>
+      <input type="text" id="email" name="email" value="{{ user["email"] }}"><br>
+      <label for="user">New Username:</label><br>
+      <input type="text" id="user" name="user" value="{{ user["username"] }}"><br>
+      <label for="pass">New Password:</label><br>
+      <input type="password" id="pass" name="pass" value="{{ user["password"] }}"><br>
+      <br>
+      <input type="submit" value="Save Changes">
     </form>
   </body>
 </html>
