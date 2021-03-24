@@ -1,11 +1,12 @@
 # Flask/DB Imports
-from flask import Flask, Response, request, redirect, url_for, session, render_template
+from flask import Flask, request, redirect, url_for, session, render_template
 from flask_cors import CORS
 from flask_session import Session
 from sqlalchemy import create_engine, Table, MetaData
 import cymysql
 
 # Non Flask/DB imports
+import json
 import time
 from middleware import logged_in, is_admin
 
@@ -30,7 +31,6 @@ users = Table('user', metadata, autoload=True)
 lists = Table('list', metadata, autoload=True)
 items = Table('item', metadata, autoload=True)
 
-con = engine.connect()
 
 # list of columns in DB
 # users - userid [INT]; username [string 45]; userpassword [string 45]; isadmin [1 is true, 0 is false]
@@ -38,14 +38,17 @@ con = engine.connect()
 # items - itemid [INT]; url [string 500]; description [string 500]; imageurl [string 500]; title [string 100]
 # all DB query calls can be referenced here https://flask.palletsprojects.com/en/1.1.x/patterns/sqlalchemy/
 
-def _session_create(username, is_admin):
+def _session_create(username, is_admin, user_id):
     session["user"] = username
     session["is_admin"] = is_admin
+    session["user_id"] = user_id
 
 
 def _session_destroy():
     session.pop("user", None)
     session.pop("is_admin", None)
+    session.pop("user_id", None)
+
 
 @api.route("/time")
 def get_current_time():
@@ -60,8 +63,11 @@ def get_current_time():
 @api.route("/")
 @api.route("/index")
 def index():
-    return render_template("index.html")
+    messages = request.args.get("messages", None)
+    return render_template("index.html", messages=messages)
 
+
+# ------------------------------------- Account Related Routes -------------------------------------
 
 @api.route("/login", methods=["GET", "POST"])
 def login():
@@ -73,22 +79,21 @@ def login():
         username = request.form.get("user")
         password = request.form.get("pass")
 
-        _session_create(username, False)
+        if username == "user_in_db":
+            _session_create(username, False, 0)
+            return redirect(url_for("profile"))
 
-        return redirect(url_for("profile")) if username is not None else Response("Username/Password not found",
-                                                                                  mimetype="text/plain", status=401)
-    # TODO: check if the user entered valid credentials
-    #      - on success: set up their session and redirect to the landing page
-    #      - on failure: render an error message
+        else:
+            return render_template("login.html", login_failed=True, message="Username and Password not found!")
 
 
 @api.route('/logout')
 def logout():
     _session_destroy()
-    return redirect(url_for('index'))
+    return redirect(url_for('index', messages={"logout": "Successful"}))
 
 
-@api.route("/create_account", methods=["GET", "POST"])
+@api.route("/account/create", methods=["GET", "POST"])
 def create_account():
     if request.method == "GET":
         return render_template("create_account.html")
@@ -96,31 +101,149 @@ def create_account():
     # POST
     else:
         username = request.form.get("user")
+        email = request.form.get("email")
         password = request.form.get("pass")
 
-    _session_create(username, False)
+        if username != "user_in_db":
+            _session_create(username, False, 0)
+            return redirect(url_for("profile"))
 
-    return redirect(url_for("profile")) if username is not None else Response("Failed to create account",
-                                                                              mimetype="text/plain", status=500)
-    # TODO: check if the user entered valid credentials
-    #      - on success: add them to the db and redirect to the landing page
-    #      - on failure: render an error message
+        else:
+            return render_template("login.html", create_failed=True, message=f"Username: {username} is already taken!")
 
 
-@api.route("/profile")
+@api.route("/profile", methods=["GET", "PUT", "DELETE"])
 @logged_in
 def profile():
-    # TODO: add middleware so only logged in admin users can see this page
-    return render_template("profile.html")
+    if request.method == "GET":
+        list_modified = request.args.get("list_modified", None)
 
+        return render_template("profile.html", list_modified=list_modified, user={"username": "user1",
+                                                                                  "email": "user1@gmail.com",
+                                                                                  "password": "password",
+                                                                                  "wishlists": [
+                                                                                      {"name": "list1", "num_items": 5,
+                                                                                       "list_id": 1},
+                                                                                      {"name": "list2", "num_items": 10,
+                                                                                       "list_id": 2},
+                                                                                      {"name": "list3", "num_items": 2,
+                                                                                       "list_id": 3},
+                                                                                  ]})
+
+    elif request.method == "PUT":
+        username = request.form.get("user")
+        email = request.form.get("email")
+        password = request.form.get("pass")
+
+        successes = {
+            "username": True if username is not None and username != "user_in_db" else False,
+            "email": True if email is not None else False,
+            "password": True if password is not None else False,
+        }
+
+        return render_template("profile.html", user={"username": "user1",
+                                                     "email": "user1@gmail.com",
+                                                     "password": "password",
+                                                     "wishlists": [
+                                                         {"name": "list1", "num_items": 5, "list_id": 1},
+                                                         {"name": "list2", "num_items": 10, "list_id": 2},
+                                                         {"name": "list3", "num_items": 2, "list_id": 3},
+                                                     ]},
+                               successes=successes)
+
+    # DELETE
+    else:
+        return url_for("index", messages={"Delete Account": "Successful"})
+
+
+# ------------------------------------- Wishlist Related Routes -------------------------------------
+
+@api.route("/wishlist/<list_id>")
+def view_wishlist(list_id):
+    item_modified = request.args.get("item_modified", None)
+
+    return render_template("wishlist.html", item_modified=item_modified, wishlist={
+        "name": "list1",
+        "id": 1,
+        "items": [
+            {"id": 1, "title": "item1", "url": "https://foo.com", "image_url": "https://foo.png", "position": 3,
+             "priority": 0},
+            {"id": 2, "title": "item2", "url": "https://bar.com", "image_url": "https://bar.png", "position": 1,
+             "priority": 1},
+            {"id": 3, "title": "item3", "url": "https://baz.com", "image_url": "https://baz.png", "position": 2,
+             "priority": 1}
+        ]
+    })
+
+
+@api.route("/wishlist/<list_id>", methods=["PUT", "POST", "DELETE"])
+@logged_in
+def modify_wishlist(list_id):
+    if request.method == "PUT":
+        return render_template("wishlist.html", list_put=True, wishlist={
+            "name": "list1",
+            "id": 1,
+            "items": [
+                {"id": 1, "title": "item1", "url": "https://foo.com", "image_url": "https://foo.png", "position": 3,
+                 "priority": 0},
+                {"id": 2, "title": "item2", "url": "https://bar.com", "image_url": "https://bar.png", "position": 1,
+                 "priority": 1},
+                {"id": 3, "title": "item3", "url": "https://baz.com", "image_url": "https://baz.png", "position": 2,
+                 "priority": 1}
+            ]
+        })
+
+    elif request.method == "POST":
+        return redirect(url_for("profile.html", list_modified={"id": 3, "action": "added", "success": True}))
+
+    # DELETE
+    else:
+        return redirect(url_for("profile.html", list_modified={"id": 3, "action": "deleted", "success": True}))
+
+
+# ------------------------------------- Item Related Routes -------------------------------------
+
+@api.route("/wishlist/<list_id>/<item_id>")
+def view_wishlist_item(list_id, item_id):
+    return render_template("wishlist_item.html", wishlist={
+        "list_id": 1,
+        "item": {"id": 1, "title": "item1", "url": "https://foo.com", "image_url": "https://foo.png", "position": 3,
+                 "priority": 0}
+    })
+
+
+@api.route("/wishlist/<list_id>/<item_id>", methods=["PUT", "POST", "DELETE"])
+@logged_in
+def modify_wishlist_item(list_id, item_id):
+    if request.method == "PUT":
+        return render_template("wishlist_item.html", item_put=True, wishlist={
+            "list_id": 1,
+            "item": {"id": 1, "title": "item1", "url": "https://foo.com", "image_url": "https://foo.png", "position": 3,
+                     "priority": 0}
+        })
+
+    elif request.method == "POST":
+        return redirect(
+            url_for("/wishlist", list_id=list_id, list_modified={"id": 3, "action": "added", "success": True}))
+
+    # DELETE
+    else:
+        return redirect(
+            url_for("/wishlist", list_id=list_id, list_modified={"id": 3, "action": "deleted", "success": True}))
+
+
+# ------------------------------------- Admin Related Routes -------------------------------------
 
 @api.route("/admin")
 @logged_in
 @is_admin
 def admin():
-    # TODO: add middleware function to make sure that a user must be logged
-    #       in to see this page, and that they can only see their page
-    return render_template("admin.html")
+    return render_template("admin.html", users=[
+        {"username": "user1", "email": "user1@gmail.com", "password": "password"},
+        {"username": "user2", "email": "user2@gmail.com", "password": "password"},
+        {"username": "user3", "email": "user3@gmail.com", "password": "password"},
+        {"username": "user4", "email": "user4@gmail.com", "password": "password"},
+    ])
 
 
 @api.errorhandler(404)
@@ -131,7 +254,3 @@ def not_found(e):
 if __name__ == '__main__':
     # put all "to be run"
     api.run()
-    # api.run(host='0.0.0.0', debug=False, port=os.environ.get('PORT', 80))
-
-def setupApp():
-    return 0
