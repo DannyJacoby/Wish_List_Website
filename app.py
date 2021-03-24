@@ -31,6 +31,7 @@ users = Table('user', metadata, autoload=True)
 lists = Table('list', metadata, autoload=True)
 items = Table('item', metadata, autoload=True)
 
+con = engine.connect()
 
 # list of columns in DB
 # users - userid [INT]; username [string 45]; userpassword [string 45]; isadmin [1 is true, 0 is false]
@@ -78,6 +79,8 @@ def login():
     else:
         username = request.form.get("user")
         password = request.form.get("pass")
+        
+        # put sql here
 
         if username == "user_in_db":
             _session_create(username, False, 0)
@@ -103,6 +106,8 @@ def create_account():
         username = request.form.get("user")
         email = request.form.get("email")
         password = request.form.get("pass")
+
+        # put sql here
 
         if username != "user_in_db":
             _session_create(username, False, 0)
@@ -205,6 +210,8 @@ def modify_wishlist(list_id):
 
 @api.route("/wishlist/<list_id>/<item_id>")
 def view_wishlist_item(list_id, item_id):
+
+
     return render_template("wishlist_item.html", wishlist={
         "list_id": 1,
         "item": {"id": 1, "title": "item1", "url": "https://foo.com", "image_url": "https://foo.png", "position": 3,
@@ -216,6 +223,8 @@ def view_wishlist_item(list_id, item_id):
 @logged_in
 def modify_wishlist_item(list_id, item_id):
     if request.method == "PUT":
+
+
         return render_template("wishlist_item.html", item_put=True, wishlist={
             "list_id": 1,
             "item": {"id": 1, "title": "item1", "url": "https://foo.com", "image_url": "https://foo.png", "position": 3,
