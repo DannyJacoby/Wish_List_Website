@@ -22,7 +22,9 @@
     </form>
 
     {% if login_failed %}
-    <p class="error"><strong>Error: Invalid username and/or password.</strong> {{ message }}</p>
+      <p class="error"><strong>Error: Invalid username and/or password.</strong> 
+      <br>
+      {{ message }}</p>
     {% endif %}
 
     <br><br>
