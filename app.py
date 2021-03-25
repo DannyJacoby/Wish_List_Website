@@ -52,24 +52,26 @@ def _session_destroy():
     session.pop("is_admin", None)
     session.pop("user_id", None)
 
-def item_serialize(item_id):
+def item_serialize(item_id, position, priority):
     item = items.select(items.c.itemid==item_id).execute().first()
     return { 
                 "item": item['itemid'],
                 "title" : item['title'], 
                 "description": item['description'],
                 "url": item['url'],
-                "image": item['imageurl']
+                "image": item['imageurl'],
+                "position": position,
+                "priority": priority 
             }
 
 def list_serializer(user_id):
     user = users.select(users.c.userid == user_id).execute().first()
     userlist = lists.select(lists.c.userid == user_id).execute().all()
-        
+    
     # list = pk, name, user id, item id, item position, priority
     itemlist = []
     for obj in userlist:
-        item = item_serialize(obj['itemid'])
+        item = item_serialize(obj['itemid'], obj['itemposition'], obj['priority'])
 
         itemlist.append(item)
 
@@ -136,9 +138,9 @@ def create_account():
 
         user = users.select(users.c.username == new_username and users.c.userpassword == new_password and users.c.email == new_email).execute().first()
 
-        con.execute(users.insert(), username=new_username, userpassword=new_password, email=new_email, isadmin=0)
-
-        if user != None:
+        if user == None:
+            con.execute(users.insert(), username=new_username, userpassword=new_password, email=new_email, isadmin=0)
+            user = users.select(users.c.username == new_username and users.c.userpassword == new_password and users.c.email == new_email).execute().first()
             _session_create(user['username'], user['isadmin'] == 1, user['userid'])
             return redirect(url_for("profile"))
 
@@ -146,7 +148,7 @@ def create_account():
             return render_template("create_account.html", create_failed=True, message=f"Username: {new_username} is already taken!")
 
 
-@api.route("/profile", methods=["GET", "PUT", "DELETE"])
+@api.route("/profile", methods=["GET", "POST", "DELETE"])
 @logged_in
 def profile():
     if request.method == "GET":
@@ -158,11 +160,11 @@ def profile():
                                                                 "username": list_serialized['user']['username'], 
                                                                 "password": list_serialized['user']['userpassword'],
                                                                 "email": list_serialized['user']['email'], 
-                                                                "wishlist_name": list_serialized['user_list'][0]['listname'],
+                                                                "wishlist_name": list_serialized['user_list'][0]['listname'] if len(list_serialized['user_list']) != 0 else "No List",
                                                                 "wishlist": list_serialized['item_list']
                                                                 })
 
-    elif request.method == "PUT":
+    elif request.method == "POST":
         new_username = request.form.get("user")
         new_email = request.form.get("email")
         new_password = request.form.get("pass")
@@ -181,7 +183,7 @@ def profile():
                                                     "username": list_serialized['user']['username'], 
                                                     "password": list_serialized['user']['userpassword'],
                                                     "email": list_serialized['user']['email'], 
-                                                    "wishlist_name": list_serialized['user_list'][0]['listname'],
+                                                    "wishlist_name": list_serialized['user_list'][0]['listname'] if len(list_serialized['user_list']) != 0 else "No List",
                                                     "wishlist": list_serialized['item_list'] 
                                                     }, successes=successes)
 
@@ -202,9 +204,9 @@ def view_wishlist(list_id):
 
     return render_template("wishlist.html", item_modified=item_modified, wishlist={
         "name": list_serialized['user_list'][0]['listname'],
-        "id": session['user_id'],
+        "id": list_id,
         "item_list": list_serialized['item_list']
-    })
+    }, is_signed_in = session.get("user_id", None) is not None)
 
 
 @api.route("/wishlist/<list_id>", methods=["PUT", "POST", "DELETE"])
@@ -218,7 +220,7 @@ def modify_wishlist(list_id):
             "name": list_serialized['user_list'][0]['listname'],
             "id": session['user_id'],
             "items": list_serialized['item_list']
-            })
+            }, is_signed_in = session.get("user_id", None) is not None)
 
     elif request.method == "POST":
         # ADD LIST
@@ -247,7 +249,7 @@ def view_wishlist_item(list_id, item_id):
     return render_template("wishlist_item.html", wishlist={
         "list_id": user_list['user']['userid'],
         "item": this_item
-    })
+    }, is_signed_in  = session.get("user_id", None) is not None)
 
 
 @api.route("/wishlist/<list_id>/<item_id>", methods=["PUT", "POST", "DELETE"])
@@ -260,21 +262,21 @@ def modify_wishlist_item(list_id, item_id):
             "list_id": 1,
             "item": {"id": 1, "title": "item1", "url": "https://foo.com", "image_url": "https://foo.png", "position": 3,
                      "priority": 0}
-        })
+        }, is_signed_in = session.get("user_id", None) is not None)
 
     elif request.method == "POST":
 
         # ADD A ITEM
 
         return redirect(
-            url_for("view_wishlist", list_id=session['user_id'], list_modified={"id": 3, "action": "added", "success": True}))
+            url_for("view_wishlist", list_id=session['user_id'], list_modified={"id": 3, "action": "added", "success": True}, is_signed_in = session.get("user_id", None) is not None ))
 
     # DELETE
     else:
         #DELETE ITEM
 
         return redirect(
-            url_for("view_wishlist", list_id=session['user_id'], list_modified={"id": 3, "action": "deleted", "success": True}))
+            url_for("view_wishlist", list_id=session['user_id'], list_modified={"id": 3, "action": "deleted", "success": True}, is_signed_in = session.get("user_id", None) is not None ))
 
 
 # ------------------------------------- Admin Related Routes -------------------------------------

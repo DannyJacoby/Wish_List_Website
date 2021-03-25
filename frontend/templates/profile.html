@@ -6,7 +6,6 @@
     <title>Profile</title>
 </head>
 <body>
-
     <nav class="header">
       <form action="/"><button>Home</button></form>
       <form action="/login"><button>Login</button></form>
@@ -19,7 +18,7 @@
 
     <div class="info">
       <p>Edit account information:</p>
-      <form method="PUT" action="/profile">
+      <form method="POST" action="/profile">
         <label for="email">New Email:</label><br>
         <input type="text" id="email" name="email" value="{{ user.email }}"><br>
         <label for="user">New Username:</label><br>
