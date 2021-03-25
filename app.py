@@ -162,7 +162,7 @@ def profile():
                                                                 "wishlist": itemlist 
                                                                 })
 
-    elif request.method == "PUT":
+    elif request.method == "POST":
         new_username = request.form.get("user")
         new_email = request.form.get("email")
         new_password = request.form.get("pass")
