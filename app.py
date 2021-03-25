@@ -2,9 +2,10 @@
 from flask import Flask, request, redirect, url_for, session, render_template
 from sqlalchemy.sql.elements import Null
 from sqlalchemy.sql.selectable import Select
+from werkzeug.datastructures import TypeConversionDict
 from flask_cors import CORS
 from flask_session import Session
-from sqlalchemy import create_engine, Table, MetaData
+from sqlalchemy import create_engine, Table, MetaData, insert, delete, update
 import cymysql
 
 # Non Flask/DB imports
@@ -37,7 +38,7 @@ con = engine.connect()
 
 # list of columns in DB
 # users - userid [INT]; username [string 45]; email [string 200]; userpassword [string 45]; isadmin [1 is true, 0 is false]
-# lists - primarylistid [INT]; listname [string 100]; listid [INT]; userid [INT]; itemid [INT]; itemposition [INT]; priority [1 is true, 0 is false]
+# lists - primarylistid [INT]; listname [string 100]; userid [INT]; itemid [INT]; itemposition [INT]; priority [1 is true, 0 is false]
 # items - itemid [INT]; url [string 500]; description [string 500]; imageurl [string 500]; title [string 100]
 # all DB query calls can be referenced here https://flask.palletsprojects.com/en/1.1.x/patterns/sqlalchemy/
 
@@ -51,6 +52,19 @@ def _session_destroy():
     session.pop("user", None)
     session.pop("is_admin", None)
     session.pop("user_id", None)
+
+def item_serialize(item_id):
+    item = items.select(items.c.itemid==item_id).execute().first()
+    return { 
+                "item": item['itemid'],
+                "title" : item['title'], 
+                "description": item['description'],
+                "url": item['url'],
+                "image": item['imageurl']
+            }
+
+def list_serializer(list_id):
+    return 0
 
 
 @api.route("/time")
@@ -130,39 +144,59 @@ def create_account():
 def profile():
     if request.method == "GET":
         list_modified = request.args.get("list_modified", None)
-        user = users.select(users.c.userid == session['user_id']).execute().first()
-        userlist = lists.select(lists.c.userid == user['userid']).execute().all()
-        print(userlist)
-        jsonString = json.dumps(userlist)
-        print(jsonString)
+        usergrabbed = users.select(users.c.userid == session['user_id']).execute().first()
+        userlist = lists.select(lists.c.userid == session['user_id']).execute().all()
+        
+        # list = pk, name, user id, item id, item position, priority
+        itemlist = []
+        for obj in userlist:
+            item = item_serialize(obj['itemid'])
 
-        return render_template("profile.html", list_modified=list_modified, user={"username": user['username'],
-                                                                                  "email": user['email']
-                                                                                 })
+            itemlist.append(item)
+            
+        return render_template("profile.html", list_modified=list_modified, user={
+                                                                "username": usergrabbed['username'], 
+                                                                "password": usergrabbed['userpassword'],
+                                                                "email": usergrabbed['email'], 
+                                                                "wishlist_name": userlist[0]['listname'],
+                                                                "wishlist": itemlist 
+                                                                })
 
     elif request.method == "PUT":
-        username = request.form.get("user")
-        email = request.form.get("email")
-        password = request.form.get("pass")
+        new_username = request.form.get("user")
+        new_email = request.form.get("email")
+        new_password = request.form.get("pass")
 
         successes = {
-            "username": True if username is not None and username != "user_in_db" else False,
-            "email": True if email is not None else False,
-            "password": True if password is not None else False,
+            "username": True if new_username is not None else False,
+            "email": True if new_email is not None else False,
+            "password": True if new_password is not None else False,
         }
 
-        return render_template("profile.html", user={"username": "user1",
-                                                     "email": "user1@gmail.com",
-                                                     "password": "password",
-                                                     "wishlists": [
-                                                         {"name": "list1", "num_items": 5, "list_id": 1},
-                                                         {"name": "list2", "num_items": 10, "list_id": 2},
-                                                         {"name": "list3", "num_items": 2, "list_id": 3},
-                                                     ]},
+        users.update().where(users.c.userid==session['user_id']).values(username=new_username, email=new_email, userpassword=new_password).execute()
+
+        user = users.select(users.c.userid==session['user_id']).execute().first()
+
+        # list = pk, name, user id, item id, item position, priority
+        userlist = lists.select(lists.c.userid == session['user_id']).execute().all()
+        itemlist = []
+        for obj in userlist:
+            item = item_serialize(obj['itemid'])
+            itemlist.append(item)
+
+        return render_template("profile.html", user={
+                                                    "username": user['username'],
+                                                    "email": user['email'],
+                                                    "password": user['userpassword'], 
+                                                    "wishlist_name": userlist[0]['listname'],
+                                                    "wishlist": itemlist 
+                                                    },
                                successes=successes)
 
     # DELETE
     else:
+        users.delete().where(users.c.userid==session['user_id']).execute()
+        _session_destroy()
         return url_for("index", messages={"Delete Account": "Successful"})
 
 
@@ -216,11 +250,19 @@ def modify_wishlist(list_id):
 @api.route("/wishlist/<list_id>/<item_id>")
 def view_wishlist_item(list_id, item_id):
 
+    item = items.select(items.c.itemid==item_id).execute().first()
+    thislist = lists.select(lists.c.listid==list_id).execute()
+    this_list_item = lists.select(lists.c.listid==list_id and lists.c.itemid==item_id).execute().first()
+
+    #TESTING
+    print(item)
+    print(thislist)
+    print(this_list_item)
 
     return render_template("wishlist_item.html", wishlist={
-        "list_id": 1,
-        "item": {"id": 1, "title": "item1", "url": "https://foo.com", "image_url": "https://foo.png", "position": 3,
-                 "priority": 0}
+        "list_id": thislist['listid'],
+        "item": {"id": item['itemid'], "title": item['title'], "url": item['url'], "image_url": item['imageurl'], "position": this_list_item['position'],
+                 "priority": this_list_item['priority']}
     })
 
 
@@ -228,7 +270,7 @@ def view_wishlist_item(list_id, item_id):
 @logged_in
 def modify_wishlist_item(list_id, item_id):
     if request.method == "PUT":
-
+        # Update?
 
         return render_template("wishlist_item.html", item_put=True, wishlist={
             "list_id": 1,
