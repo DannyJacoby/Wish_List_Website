@@ -1,8 +1,11 @@
 # Flask/DB Imports
 from flask import Flask, request, redirect, url_for, session, render_template
+from sqlalchemy.sql.elements import Null
+from sqlalchemy.sql.selectable import Select
+from werkzeug.datastructures import TypeConversionDict
 from flask_cors import CORS
 from flask_session import Session
-from sqlalchemy import create_engine, Table, MetaData
+from sqlalchemy import create_engine, Table, MetaData, insert, delete, update
 import cymysql
 
 # Non Flask/DB imports
@@ -31,10 +34,11 @@ users = Table('user', metadata, autoload=True)
 lists = Table('list', metadata, autoload=True)
 items = Table('item', metadata, autoload=True)
 
+con = engine.connect()
 
 # list of columns in DB
-# users - userid [INT]; username [string 45]; userpassword [string 45]; isadmin [1 is true, 0 is false]
-# lists - primarylistid [INT]; listid [INT]; userid [INT]; itemid [INT]; itemposition [INT]; priority [1 is true, 0 is false]
+# users - userid [INT]; username [string 45]; email [string 200]; userpassword [string 45]; isadmin [1 is true, 0 is false]
+# lists - primarylistid [INT]; listname [string 100]; userid [INT]; itemid [INT]; itemposition [INT]; priority [1 is true, 0 is false]
 # items - itemid [INT]; url [string 500]; description [string 500]; imageurl [string 500]; title [string 100]
 # all DB query calls can be referenced here https://flask.palletsprojects.com/en/1.1.x/patterns/sqlalchemy/
 
@@ -49,14 +53,25 @@ def _session_destroy():
     session.pop("is_admin", None)
     session.pop("user_id", None)
 
+def item_serialize(item_id):
+    item = items.select(items.c.itemid==item_id).execute().first()
+    return { 
+                "item": item['itemid'],
+                "title" : item['title'], 
+                "description": item['description'],
+                "url": item['url'],
+                "image": item['imageurl']
+            }
+
+def list_serializer(list_id):
+    return 0
+
 
 @api.route("/time")
 def get_current_time():
-    user1name = users.select(users.c.userid == 1).execute().first()
-
     return {
         "time": time.time(),
-        "user1": user1name['userpassword']
+        "user1": 'userpassword'
             }
 
 
@@ -71,20 +86,27 @@ def index():
 
 @api.route("/login", methods=["GET", "POST"])
 def login():
+    login_page = "login.html"
     if request.method == "GET":
-        return render_template("login.html")
+        return render_template(login_page)
 
     # POST
     else:
         username = request.form.get("user")
         password = request.form.get("pass")
+        print("user: " + username + " pass: " + password)
 
-        if username == "user_in_db":
-            _session_create(username, False, 0)
+        try:
+            user = users.select(users.c.username == username and users.c.userpassword == password).execute().first()
+        except Exception:
+            print(Exception)
+
+        if user != None:
+            _session_create(user['username'], user['isadmin'] == 1, user['userid'])
             return redirect(url_for("profile"))
 
         else:
-            return render_template("login.html", login_failed=True, message="Username and Password not found!")
+            return render_template(login_page, login_failed=True, message="Username and Password not found!")
 
 
 @api.route('/logout')
@@ -99,17 +121,22 @@ def create_account():
         return render_template("create_account.html")
 
     # POST
+    # We never get here atm
     else:
-        username = request.form.get("user")
-        email = request.form.get("email")
-        password = request.form.get("pass")
+        new_username = request.form.get("user")
+        new_email = request.form.get("email")
+        new_password = request.form.get("pass")
 
-        if username != "user_in_db":
-            _session_create(username, False, 0)
+        user = users.select(users.c.username == new_username and users.c.userpassword == new_password and users.c.email == new_email).execute().first()
+
+        con.execute(users.insert(), username=new_username, userpassword=new_password, email=new_email, isadmin=0)
+
+        if user != None:
+            _session_create(user['username'], user['isadmin'] == 1, user['userid'])
             return redirect(url_for("profile"))
 
         else:
-            return render_template("login.html", create_failed=True, message=f"Username: {username} is already taken!")
+            return render_template("create_account.html", create_failed=True, message=f"Username: {new_username} is already taken!")
 
 
 @api.route("/profile", methods=["GET", "PUT", "DELETE"])
@@ -117,42 +144,59 @@ def create_account():
 def profile():
     if request.method == "GET":
         list_modified = request.args.get("list_modified", None)
+        usergrabbed = users.select(users.c.userid == session['user_id']).execute().first()
+        userlist = lists.select(lists.c.userid == session['user_id']).execute().all()
+        
+        # list = pk, name, user id, item id, item position, priority
+        itemlist = []
+        for obj in userlist:
+            item = item_serialize(obj['itemid'])
 
-        return render_template("profile.html", list_modified=list_modified, user={"username": "user1",
-                                                                                  "email": "user1@gmail.com",
-                                                                                  "password": "password",
-                                                                                  "wishlists": [
-                                                                                      {"name": "list1", "num_items": 5,
-                                                                                       "list_id": 1},
-                                                                                      {"name": "list2", "num_items": 10,
-                                                                                       "list_id": 2},
-                                                                                      {"name": "list3", "num_items": 2,
-                                                                                       "list_id": 3},
-                                                                                  ]})
+            itemlist.append(item)
+            
+        return render_template("profile.html", list_modified=list_modified, user={
+                                                                "username": usergrabbed['username'], 
+                                                                "password": usergrabbed['userpassword'],
+                                                                "email": usergrabbed['email'], 
+                                                                "wishlist_name": userlist[0]['listname'],
+                                                                "wishlist": itemlist 
+                                                                })
 
-    elif request.method == "PUT":
-        username = request.form.get("user")
-        email = request.form.get("email")
-        password = request.form.get("pass")
+    elif request.method == "POST":
+        new_username = request.form.get("user")
+        new_email = request.form.get("email")
+        new_password = request.form.get("pass")
 
         successes = {
-            "username": True if username is not None and username != "user_in_db" else False,
-            "email": True if email is not None else False,
-            "password": True if password is not None else False,
+            "username": True if new_username is not None else False,
+            "email": True if new_email is not None else False,
+            "password": True if new_password is not None else False,
         }
 
-        return render_template("profile.html", user={"username": "user1",
-                                                     "email": "user1@gmail.com",
-                                                     "password": "password",
-                                                     "wishlists": [
-                                                         {"name": "list1", "num_items": 5, "list_id": 1},
-                                                         {"name": "list2", "num_items": 10, "list_id": 2},
-                                                         {"name": "list3", "num_items": 2, "list_id": 3},
-                                                     ]},
+        users.update().where(users.c.userid==session['user_id']).values(username=new_username, email=new_email, userpassword=new_password).execute()
+
+        user = users.select(users.c.userid==session['user_id']).execute().first()
+
+        # list = pk, name, user id, item id, item position, priority
+        userlist = lists.select(lists.c.userid == session['user_id']).execute().all()
+        itemlist = []
+        for obj in userlist:
+            item = item_serialize(obj['itemid'])
+            itemlist.append(item)
+
+        return render_template("profile.html", user={
+                                                    "username": user['username'],
+                                                    "email": user['email'],
+                                                    "password": user['userpassword'], 
+                                                    "wishlist_name": userlist[0]['listname'],
+                                                    "wishlist": itemlist 
+                                                    },
                                successes=successes)
 
     # DELETE
     else:
+        users.delete().where(users.c.userid==session['user_id']).execute()
+        _session_destroy()
         return url_for("index", messages={"Delete Account": "Successful"})
 
 
@@ -194,21 +238,31 @@ def modify_wishlist(list_id):
         })
 
     elif request.method == "POST":
-        return redirect(url_for("profile.html", list_modified={"id": 3, "action": "added", "success": True}))
+        return redirect(url_for("profile", list_modified={"id": 3, "action": "added", "success": True}))
 
     # DELETE
     else:
-        return redirect(url_for("profile.html", list_modified={"id": 3, "action": "deleted", "success": True}))
+        return redirect(url_for("profile", list_modified={"id": 3, "action": "deleted", "success": True}))
 
 
 # ------------------------------------- Item Related Routes -------------------------------------
 
 @api.route("/wishlist/<list_id>/<item_id>")
 def view_wishlist_item(list_id, item_id):
+
+    item = items.select(items.c.itemid==item_id).execute().first()
+    thislist = lists.select(lists.c.listid==list_id).execute()
+    this_list_item = lists.select(lists.c.listid==list_id and lists.c.itemid==item_id).execute().first()
+
+    #TESTING
+    print(item)
+    print(thislist)
+    print(this_list_item)
+
     return render_template("wishlist_item.html", wishlist={
-        "list_id": 1,
-        "item": {"id": 1, "title": "item1", "url": "https://foo.com", "image_url": "https://foo.png", "position": 3,
-                 "priority": 0}
+        "list_id": thislist['listid'],
+        "item": {"id": item['itemid'], "title": item['title'], "url": item['url'], "image_url": item['imageurl'], "position": this_list_item['position'],
+                 "priority": this_list_item['priority']}
     })
 
 
@@ -216,6 +270,8 @@ def view_wishlist_item(list_id, item_id):
 @logged_in
 def modify_wishlist_item(list_id, item_id):
     if request.method == "PUT":
+        # Update?
+
         return render_template("wishlist_item.html", item_put=True, wishlist={
             "list_id": 1,
             "item": {"id": 1, "title": "item1", "url": "https://foo.com", "image_url": "https://foo.png", "position": 3,
@@ -224,12 +280,12 @@ def modify_wishlist_item(list_id, item_id):
 
     elif request.method == "POST":
         return redirect(
-            url_for("/wishlist", list_id=list_id, list_modified={"id": 3, "action": "added", "success": True}))
+            url_for("view_wishlist", list_id=list_id, list_modified={"id": 3, "action": "added", "success": True}))
 
     # DELETE
     else:
         return redirect(
-            url_for("/wishlist", list_id=list_id, list_modified={"id": 3, "action": "deleted", "success": True}))
+            url_for("view_wishlist", list_id=list_id, list_modified={"id": 3, "action": "deleted", "success": True}))
 
 
 # ------------------------------------- Admin Related Routes -------------------------------------
