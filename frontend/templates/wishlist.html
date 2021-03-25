@@ -24,7 +24,7 @@
             <li><h4><a href= "wishlist_item/{{i.item_list}}">{{ i.title }}</a></h4>
                 <br>{{i.Description}}
                 <br><a href = "{{i.url}}">Link</a>
-                <br><img src="{{i.image}}" alt= {{i.title}}>
+                <br><img src="{{i.image}}" alt={{i.title}} width="300" height="300">
             </li>
           {%endfor%}
         </ol>
