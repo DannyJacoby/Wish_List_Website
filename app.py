@@ -88,7 +88,6 @@ def login():
             print(Exception)
 
         if user != None:
-
             _session_create(user['username'], user['isadmin'] == 1, user['userid'])
             return redirect(url_for("profile"))
 
@@ -118,11 +117,6 @@ def create_account():
 
         con.execute(users.insert(), username=new_username, userpassword=new_password, email=new_email, isadmin=0)
 
-        try:
-            user = users.select(users.c.username == new_username and users.c.userpassword == new_password and users.c.email == new_email).execute().first()
-        except Exception:
-            print(Exception)
-
         if user != None:
             _session_create(user['username'], user['isadmin'] == 1, user['userid'])
             return redirect(url_for("profile"))
@@ -136,18 +130,15 @@ def create_account():
 def profile():
     if request.method == "GET":
         list_modified = request.args.get("list_modified", None)
+        user = users.select(users.c.userid == session['user_id']).execute().first()
+        userlist = lists.select(lists.c.userid == user['userid']).execute().all()
+        print(userlist)
+        jsonString = json.dumps(userlist)
+        print(jsonString)
 
-        return render_template("profile.html", list_modified=list_modified, user={"username": "user1",
-                                                                                  "email": "user1@gmail.com",
-                                                                                  "password": "password",
-                                                                                  "wishlists": [
-                                                                                      {"name": "list1", "num_items": 5,
-                                                                                       "list_id": 1},
-                                                                                      {"name": "list2", "num_items": 10,
-                                                                                       "list_id": 2},
-                                                                                      {"name": "list3", "num_items": 2,
-                                                                                       "list_id": 3},
-                                                                                  ]})
+        return render_template("profile.html", list_modified=list_modified, user={"username": user['username'],
+                                                                                  "email": user['email']
+                                                                                 })
 
     elif request.method == "PUT":
         username = request.form.get("user")
