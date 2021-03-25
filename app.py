@@ -242,7 +242,7 @@ def modify_wishlist(list_id):
 
 # ------------------------------------- Item Related Routes -------------------------------------
 
-@api.route("/wishlist/<list_id>/<item_id>")
+@api.route("/wishlist/<item_id>")
 def view_wishlist_item(list_id, item_id):
 
     item = items.select(items.c.itemid==item_id).execute().first()
@@ -261,7 +261,7 @@ def view_wishlist_item(list_id, item_id):
     })
 
 
-@api.route("/wishlist/<list_id>/<item_id>", methods=["PUT", "POST", "DELETE"])
+@api.route("/wishlist/<item_id>", methods=["PUT", "POST", "DELETE"])
 @logged_in
 def modify_wishlist_item(list_id, item_id):
     if request.method == "PUT":
