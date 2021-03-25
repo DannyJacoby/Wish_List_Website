@@ -7,14 +7,15 @@
 </head>
 <body>
     <nav class="header">
-        <form action="/"><button>Home</button></form>
-        <form action="/login"><button>Login</button></form>
-        <form action="/account/create"><button>Create Account</button></form>
-        <form action="/profile"><button>Profile</button></form>
+        {% if is_signed_in %}
+            <form action="/profile"><button>Profile</button></form>
+            <form action="/logout"><button>Logout</button></form>
+        {% else %}
+            <form action="/"><button>Home</button></form><br>
+        {% endif %}
       </nav>
 
     <img src="../static/img/wishlist_logo.png" alt="Logo">
-    <form action="/logout"><button>Logout</button></form>
     <br>
     
     <div class="wlists">
