@@ -14,23 +14,24 @@
     </nav>
 
     <img src="../static/img/wishlist_logo.png" alt="Logo">
-    <button type="button" formaction="index.html">Logout</button><br>
+    <form action="/logout"><button>Logout</button></form>
+    <br>
     <h1>Welcome back, {{ user["username"] }}!</h1>
 
     <div class="info">
       <p>Edit account information:</p>
       <form method="POST" action="/create_account">
         <label for="email">New Email:</label><br>
-        <input type="text" id="email" name="email" value="{{ user["email"] }}"><br><br>
+        <input type="text" id="email" name="email" value="{{ user["email"] }}"><br>
         <label for="user">New Username:</label><br>
-        <input type="text" id="user" name="user" value="{{ user["username"] }}"><br><br>
+        <input type="text" id="user" name="user" value="{{ user["username"] }}"><br>
         <label for="pass">New Password:</label><br>
-        <input type="password" id="pass" name="pass" value="{{ user["password"] }}"><br><br>
-        <br>
-        <input type="submit" value="Save Changes">
+        <input type="password" id="pass" name="pass" value="{{ user["password"] }}"><br>
+        <br><br>
+        <input type="submit" value="Save Changes"> 
       </form>
     </div>
-
+    <br>
     <div class="wlists">
       <ul>
         {%for i in range(0, user["wishlists"]|length)%}
@@ -39,5 +40,6 @@
       </ul>
     </div>
 
+    <form METHOD="DELETE" action="/profile"><button>Delete Account</button></form>
   </body>
 </html>
