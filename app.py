@@ -63,8 +63,18 @@ def item_serialize(item_id):
                 "image": item['imageurl']
             }
 
-def list_serializer(list_id):
-    return 0
+def list_serializer():
+    user = users.select(users.c.userid == session['user_id']).execute().first()
+    userlist = lists.select(lists.c.userid == session['user_id']).execute().all()
+        
+    # list = pk, name, user id, item id, item position, priority
+    itemlist = []
+    for obj in userlist:
+        item = item_serialize(obj['itemid'])
+
+        itemlist.append(item)
+
+    return { "user" : user, "user_list" : userlist, "item_list" : itemlist}
 
 
 @api.route("/time")
@@ -94,7 +104,6 @@ def login():
     else:
         username = request.form.get("user")
         password = request.form.get("pass")
-        print("user: " + username + " pass: " + password)
 
         try:
             user = users.select(users.c.username == username and users.c.userpassword == password).execute().first()
@@ -144,22 +153,16 @@ def create_account():
 def profile():
     if request.method == "GET":
         list_modified = request.args.get("list_modified", None)
-        usergrabbed = users.select(users.c.userid == session['user_id']).execute().first()
-        userlist = lists.select(lists.c.userid == session['user_id']).execute().all()
         
-        # list = pk, name, user id, item id, item position, priority
-        itemlist = []
-        for obj in userlist:
-            item = item_serialize(obj['itemid'])
-
-            itemlist.append(item)
+        list_serialized = list_serializer()
+        
             
         return render_template("profile.html", list_modified=list_modified, user={
-                                                                "username": usergrabbed['username'], 
-                                                                "password": usergrabbed['userpassword'],
-                                                                "email": usergrabbed['email'], 
-                                                                "wishlist_name": userlist[0]['listname'],
-                                                                "wishlist": itemlist 
+                                                                "username": list_serialized['user']['username'], 
+                                                                "password": list_serialized['user']['userpassword'],
+                                                                "email": list_serialized['user']['email'], 
+                                                                "wishlist_name": list_serialized['user_list'][0]['listname'],
+                                                                "wishlist": list_serialized['item_list']
                                                                 })
 
     elif request.method == "POST":
@@ -175,23 +178,15 @@ def profile():
 
         users.update().where(users.c.userid==session['user_id']).values(username=new_username, email=new_email, userpassword=new_password).execute()
 
-        user = users.select(users.c.userid==session['user_id']).execute().first()
-
-        # list = pk, name, user id, item id, item position, priority
-        userlist = lists.select(lists.c.userid == session['user_id']).execute().all()
-        itemlist = []
-        for obj in userlist:
-            item = item_serialize(obj['itemid'])
-            itemlist.append(item)
+        list_serialized = list_serializer()
 
         return render_template("profile.html", user={
-                                                    "username": user['username'],
-                                                    "email": user['email'],
-                                                    "password": user['userpassword'], 
-                                                    "wishlist_name": userlist[0]['listname'],
-                                                    "wishlist": itemlist 
-                                                    },
-                               successes=successes)
+                                                    "username": list_serialized['user']['username'], 
+                                                    "password": list_serialized['user']['userpassword'],
+                                                    "email": list_serialized['user']['email'], 
+                                                    "wishlist_name": list_serialized['user_list'][0]['listname'],
+                                                    "wishlist": list_serialized['item_list'] 
+                                                    }, successes=successes)
 
     # DELETE
     else:
