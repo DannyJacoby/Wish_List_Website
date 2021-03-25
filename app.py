@@ -201,44 +201,35 @@ def profile():
 def view_wishlist(list_id):
     item_modified = request.args.get("item_modified", None)
 
-    # Put SQL stuff here
+    list_serialized = list_serializer()
 
     return render_template("wishlist.html", item_modified=item_modified, wishlist={
-        "name": "list1",
-        "id": 1,
-        "items": [
-            {"id": 1, "title": "item1", "url": "https://foo.com", "image_url": "https://foo.png", "position": 3,
-             "priority": 0},
-            {"id": 2, "title": "item2", "url": "https://bar.com", "image_url": "https://bar.png", "position": 1,
-             "priority": 1},
-            {"id": 3, "title": "item3", "url": "https://baz.com", "image_url": "https://baz.png", "position": 2,
-             "priority": 1}
-        ]
+        "name": list_serialized['user_list'][0]['listname'],
+        "id": session['user_id'],
+        "items": list_serialized['item_list']
     })
 
 
 @api.route("/wishlist/<list_id>", methods=["PUT", "POST", "DELETE"])
 @logged_in
 def modify_wishlist(list_id):
+    list_serialized = list_serializer()
     if request.method == "PUT":
+        #UPDATE ITEM
+
         return render_template("wishlist.html", list_put=True, wishlist={
-            "name": "list1",
-            "id": 1,
-            "items": [
-                {"id": 1, "title": "item1", "url": "https://foo.com", "image_url": "https://foo.png", "position": 3,
-                 "priority": 0},
-                {"id": 2, "title": "item2", "url": "https://bar.com", "image_url": "https://bar.png", "position": 1,
-                 "priority": 1},
-                {"id": 3, "title": "item3", "url": "https://baz.com", "image_url": "https://baz.png", "position": 2,
-                 "priority": 1}
-            ]
-        })
+            "name": list_serialized['user_list'][0]['listname'],
+            "id": session['user_id'],
+            "items": list_serialized['item_list']
+            })
 
     elif request.method == "POST":
+        #ADD ITEM
         return redirect(url_for("profile", list_modified={"id": 3, "action": "added", "success": True}))
 
     # DELETE
     else:
+        #DELETE ITEM
         return redirect(url_for("profile", list_modified={"id": 3, "action": "deleted", "success": True}))
 
 
@@ -264,7 +255,7 @@ def view_wishlist_item(item_id):
 @logged_in
 def modify_wishlist_item(item_id):
     if request.method == "PUT":
-        # Update?
+        # UPDATE ITEM
 
         return render_template("wishlist_item.html", item_put=True, wishlist={
             "list_id": 1,
@@ -273,11 +264,16 @@ def modify_wishlist_item(item_id):
         })
 
     elif request.method == "POST":
+
+        # ADD A ITEM
+
         return redirect(
             url_for("view_wishlist", list_id=session['user_id'], list_modified={"id": 3, "action": "added", "success": True}))
 
     # DELETE
     else:
+        #DELETE ITEM
+
         return redirect(
             url_for("view_wishlist", list_id=session['user_id'], list_modified={"id": 3, "action": "deleted", "success": True}))
 
