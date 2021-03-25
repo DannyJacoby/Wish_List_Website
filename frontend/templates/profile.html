@@ -22,22 +22,23 @@
       <p>Edit account information:</p>
       <form method="POST" action="/create_account">
         <label for="email">New Email:</label><br>
-        <input type="text" id="email" name="email" value="{{ user["email"] }}"><br>
+        <input type="text" id="email" name="email" value="{{ user.email }}"><br>
         <label for="user">New Username:</label><br>
-        <input type="text" id="user" name="user" value="{{ user["username"] }}"><br>
+        <input type="text" id="user" name="user" value="{{ user.username }}"><br>
         <label for="pass">New Password:</label><br>
-        <input type="password" id="pass" name="pass" value="{{ user["password"] }}"><br>
+        <input type="password" id="pass" name="pass" value="{{ user.password }}"><br>
         <br><br>
         <input type="submit" value="Save Changes"> 
       </form>
     </div>
     <br>
     <div class="wlists">
-      <ul>
-        {%for i in range(0, user["wishlists"]|length)%}
-        <li>{{ user["wishlists"][i]}}</li>
+      <ol>
+        <h2><a href="wishlist/{{ session.user_id }}.html">{{ user["wishlist_name"] }}</a></h2>
+        {%for i in user["wishlist"] %}
+        <li><a href= "wishlist_item/{{i.item}}">{{ i["title"] }}</a></li>
         {%endfor%}
-      </ul>
+      </ol>
     </div>
 
     <form METHOD="DELETE" action="/profile"><button>Delete Account</button></form>
