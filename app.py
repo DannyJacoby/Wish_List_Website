@@ -47,7 +47,6 @@ def _session_create(username, is_admin, user_id):
     session["is_admin"] = is_admin
     session["user_id"] = user_id
 
-
 def _session_destroy():
     session.pop("user", None)
     session.pop("is_admin", None)
@@ -63,9 +62,9 @@ def item_serialize(item_id):
                 "image": item['imageurl']
             }
 
-def list_serializer():
-    user = users.select(users.c.userid == session['user_id']).execute().first()
-    userlist = lists.select(lists.c.userid == session['user_id']).execute().all()
+def list_serializer(user_id):
+    user = users.select(users.c.userid == user_id).execute().first()
+    userlist = lists.select(lists.c.userid == user_id).execute().all()
         
     # list = pk, name, user id, item id, item position, priority
     itemlist = []
@@ -130,7 +129,6 @@ def create_account():
         return render_template("create_account.html")
 
     # POST
-    # We never get here atm
     else:
         new_username = request.form.get("user")
         new_email = request.form.get("email")
@@ -154,9 +152,8 @@ def profile():
     if request.method == "GET":
         list_modified = request.args.get("list_modified", None)
         
-        list_serialized = list_serializer()
+        list_serialized = list_serializer(session['user_id'])
         
-            
         return render_template("profile.html", list_modified=list_modified, user={
                                                                 "username": list_serialized['user']['username'], 
                                                                 "password": list_serialized['user']['userpassword'],
@@ -178,7 +175,7 @@ def profile():
 
         users.update().where(users.c.userid==session['user_id']).values(username=new_username, email=new_email, userpassword=new_password).execute()
 
-        list_serialized = list_serializer()
+        list_serialized = list_serializer(session['user_id'])
 
         return render_template("profile.html", user={
                                                     "username": list_serialized['user']['username'], 
@@ -201,22 +198,22 @@ def profile():
 def view_wishlist(list_id):
     item_modified = request.args.get("item_modified", None)
 
-    list_serialized = list_serializer()
+    list_serialized = list_serializer(list_id)
 
     return render_template("wishlist.html", item_modified=item_modified, wishlist={
         "name": list_serialized['user_list'][0]['listname'],
         "id": session['user_id'],
-        "items": list_serialized['item_list']
+        "item_list": list_serialized['item_list']
     })
 
 
 @api.route("/wishlist/<list_id>", methods=["PUT", "POST", "DELETE"])
 @logged_in
 def modify_wishlist(list_id):
-    list_serialized = list_serializer()
+    list_serialized = list_serializer(list_id)
     if request.method == "PUT":
-        #UPDATE ITEM
-
+        # UPDATE LIST NAME (?)
+        # NOT NEEDED/USED ATM, WILL BE USED LATER
         return render_template("wishlist.html", list_put=True, wishlist={
             "name": list_serialized['user_list'][0]['listname'],
             "id": session['user_id'],
@@ -224,22 +221,24 @@ def modify_wishlist(list_id):
             })
 
     elif request.method == "POST":
-        #ADD ITEM
+        # ADD LIST
+        # NOT NEEDED/USED ATM
         return redirect(url_for("profile", list_modified={"id": 3, "action": "added", "success": True}))
 
     # DELETE
     else:
-        #DELETE ITEM
+        # DELETE WHOLE LIST
+        # BUT DO WE NEED IT?       
         return redirect(url_for("profile", list_modified={"id": 3, "action": "deleted", "success": True}))
 
 
 # ------------------------------------- Item Related Routes -------------------------------------
 
-@api.route("/wishlist/<item_id>")
-def view_wishlist_item(item_id):
+@api.route("/wishlist/<list_id>/<item_id>")
+def view_wishlist_item(list_id, item_id):
 
     this_item = item_serialize(item_id)
-    user_list = list_serializer()
+    user_list = list_serializer(list_id)
 
     #TESTING
     print(this_item)
@@ -251,9 +250,9 @@ def view_wishlist_item(item_id):
     })
 
 
-@api.route("/wishlist/<item_id>", methods=["PUT", "POST", "DELETE"])
+@api.route("/wishlist/<list_id>/<item_id>", methods=["PUT", "POST", "DELETE"])
 @logged_in
-def modify_wishlist_item(item_id):
+def modify_wishlist_item(list_id, item_id):
     if request.method == "PUT":
         # UPDATE ITEM
 

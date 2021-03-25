@@ -36,7 +36,7 @@
       <ol>
         <h2><a href="wishlist/{{ session.user_id }}.html">{{ user["wishlist_name"] }}</a></h2>
         {%for i in user["wishlist"] %}
-          <li><a href= "wishlist/{{i.item}}">{{ i["title"] }}</a></li>
+          <li><a href= "wishlist_item/{{ session.user_id }}/{{i.item}}">{{ i["title"] }}</a></li>
         {%endfor%}
       </ol>
     </div>
