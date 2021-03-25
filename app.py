@@ -74,7 +74,7 @@ def list_serializer():
 
         itemlist.append(item)
 
-    return { "user" : user, "user_list" : userlist, "item_list" : itemlist}
+    return { "user" : user, "user_list" : userlist, "item_list" : itemlist }
 
 
 @api.route("/time")
@@ -165,7 +165,7 @@ def profile():
                                                                 "wishlist": list_serialized['item_list']
                                                                 })
 
-    elif request.method == "POST":
+    elif request.method == "PUT":
         new_username = request.form.get("user")
         new_email = request.form.get("email")
         new_password = request.form.get("pass")
@@ -200,6 +200,8 @@ def profile():
 @api.route("/wishlist/<list_id>")
 def view_wishlist(list_id):
     item_modified = request.args.get("item_modified", None)
+
+    # Put SQL stuff here
 
     return render_template("wishlist.html", item_modified=item_modified, wishlist={
         "name": "list1",
@@ -242,28 +244,25 @@ def modify_wishlist(list_id):
 
 # ------------------------------------- Item Related Routes -------------------------------------
 
-@api.route("/wishlist/<list_id>/<item_id>")
-def view_wishlist_item(list_id, item_id):
+@api.route("/wishlist/<item_id>")
+def view_wishlist_item(item_id):
 
-    item = items.select(items.c.itemid==item_id).execute().first()
-    thislist = lists.select(lists.c.listid==list_id).execute()
-    this_list_item = lists.select(lists.c.listid==list_id and lists.c.itemid==item_id).execute().first()
+    this_item = item_serialize(item_id)
+    user_list = list_serializer()
 
     #TESTING
-    print(item)
-    print(thislist)
-    print(this_list_item)
+    print(this_item)
+    print(user_list)
 
     return render_template("wishlist_item.html", wishlist={
-        "list_id": thislist['listid'],
-        "item": {"id": item['itemid'], "title": item['title'], "url": item['url'], "image_url": item['imageurl'], "position": this_list_item['position'],
-                 "priority": this_list_item['priority']}
+        "list_id": user_list['user']['userid'],
+        "item": this_item
     })
 
 
-@api.route("/wishlist/<list_id>/<item_id>", methods=["PUT", "POST", "DELETE"])
+@api.route("/wishlist/<item_id>", methods=["PUT", "POST", "DELETE"])
 @logged_in
-def modify_wishlist_item(list_id, item_id):
+def modify_wishlist_item(item_id):
     if request.method == "PUT":
         # Update?
 
@@ -275,12 +274,12 @@ def modify_wishlist_item(list_id, item_id):
 
     elif request.method == "POST":
         return redirect(
-            url_for("view_wishlist", list_id=list_id, list_modified={"id": 3, "action": "added", "success": True}))
+            url_for("view_wishlist", list_id=session['user_id'], list_modified={"id": 3, "action": "added", "success": True}))
 
     # DELETE
     else:
         return redirect(
-            url_for("view_wishlist", list_id=list_id, list_modified={"id": 3, "action": "deleted", "success": True}))
+            url_for("view_wishlist", list_id=session['user_id'], list_modified={"id": 3, "action": "deleted", "success": True}))
 
 
 # ------------------------------------- Admin Related Routes -------------------------------------
