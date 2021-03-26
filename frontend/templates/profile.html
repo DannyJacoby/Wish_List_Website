@@ -8,20 +8,17 @@
 </head>
 <body class="text-center">
     <nav class="header shadow">
+        <img class="header-img" src="../static/img/wishlist_logo.png" alt="Logo">
+      {% if is_signed_in %}
         <form action="/profile"><button>Profile</button></form>
         <form action="/logout"><button>Logout</button></form>
-<<<<<<< Updated upstream
-        <img class="header-img" src="../static/img/wishlist_logo.png" alt="Logo">
-    </nav><br>
-=======
         {% if i_am_admin %}
           <form action="/admin"><button>Admin</button></form>
         {% endif %}
-    {% else %}
+      {% else %}
         <form action="/"><button>Home</button></form><br>
-    {% endif %}
+      {% endif %}
   </nav>
->>>>>>> Stashed changes
 
     <br>
     <h1>Welcome back, {{ user["username"] }}!</h1>
@@ -56,15 +53,6 @@
 
     <br>
     <div class="wlists">
-<<<<<<< Updated upstream
-        <h2><a href="wishlist/{{ session.user_id }}.html">{{ user["wishlist_name"] }}</a></h2>
-        <ol>
-            {%for i in user["wishlist"] %}
-                <li><a href= "wishlist_item/{{ session.user_id }}/{{i.item}}">{{ i["title"] }}</a></li>
-            {%endfor%}
-        </ol>
-    </div>
-=======
       <ol>
         {% if has_lists %}
           <h2><a href="wishlist/{{ session.user_id }}.html">{{ user["wishlist_name"] }}</a></h2>
@@ -75,7 +63,6 @@
           <h2><a href= "">{{ user["wishlist_name"] }}</a></h2>
         {% endif %}
       </ol>
->>>>>>> Stashed changes
     </div>
 
     <form METHOD="DELETE" action="/profile"><button class="btn btn-outline-danger">Delete Account</button></form>
