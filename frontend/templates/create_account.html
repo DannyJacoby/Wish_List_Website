@@ -17,7 +17,7 @@
     <div class="card shadow" style="width: 18rem;">
         <div class="card-body">
             <h5 class="card-title">Create Account</h5>
-            <form method="POST" action="/account/create" class="needs-validation">
+            <form method="POST" action="/account/create" class="needs-validation" id="account-form">
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
                         <span class="input-group-text">Email</span>
@@ -40,15 +40,18 @@
                     </small>
                 </div>
 
-                <input type="submit" value="Create Account" class="btn btn-outline-info" id="create-btn">
+                <input type="submit" value="Create Account" class="btn btn-outline-info" id="account-btn">
             </form>
         </div>
     </div>
 
     {% if create_failed %}
-    <p class="error"><strong>{{ message }}</strong></p>
+        <p class="error"><strong>{{ message }}</strong></p>
     {% endif %}
     <br>
     <p class="bottom">Already have an account?  <a class="bottom" href="{{url_for('login')}}"> Login here</a></p>
+
+    <script src="../static/js/req.js"></script>
+    <script src="../static/js/validate.js"></script>
   </body>
 </html>

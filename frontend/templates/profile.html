@@ -8,25 +8,26 @@
 </head>
 <body class="text-center">
     <nav class="header shadow">
-        <img class="header-img" src="../static/img/wishlist_logo.png" alt="Logo">
-      {% if is_signed_in %}
-        <form action="/profile"><button>Profile</button></form>
-        <form action="/logout"><button>Logout</button></form>
+        {% if is_signed_in %}
+            <form action="/profile"><button>Profile</button></form>
+            <form action="/logout"><button>Logout</button></form>
         {% if i_am_admin %}
-          <form action="/admin"><button>Admin</button></form>
+            <form action="/admin"><button>Admin</button></form>
         {% endif %}
-      {% else %}
-        <form action="/"><button>Home</button></form><br>
-      {% endif %}
-  </nav>
+        {% else %}
+            <form action="/"><button>Home</button></form><br>
+        {% endif %}
+        <img class="header-img" src="../static/img/wishlist_logo.png" alt="Logo">
+    </nav>
 
     <br>
     <h1>Welcome back, {{ user["username"] }}!</h1>
+    <h4 class="text-success" id="message-target"></h4>
 
     <div class="card shadow" style="width: 18rem;">
         <div class="card-body">
             <h5 class="card-title">Edit account information:</h5>
-            <form method="POST" action="/profile">
+            <form method="POST" action="#">
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
                         <span class="input-group-text">Email</span>
@@ -53,18 +54,32 @@
 
     <br>
     <div class="wlists">
-      <ol>
         {% if has_lists %}
-          <h2><a href="wishlist/{{ session.user_id }}.html">{{ user["wishlist_name"] }}</a></h2>
-              {%for i in user["wishlist"] %}
-                <li><a href= "wishlist/{{ session.user_id }}/{{i.item}}">{{ i["title"] }}</a></li>
-              {%endfor%}
+            <h2><a href="wishlist/{{ session.user_id }}.html">{{ user["wishlist_name"] }}</a></h2>
+            <ol>
+                {%for i in user["wishlist"] %}
+                    <li><a href= "wishlist/{{ session.user_id }}/{{i.item}}">{{ i["title"] }}</a></li>
+                {%endfor%}
+            </ol>
         {% else %}
-          <h2><a href= "">{{ user["wishlist_name"] }}</a></h2>
+            <form action="/wishlist/none" method="POST">
+                <h2><a href="#">{{ user["wishlist_name"] }}</a></h2>
+                <div class="input-group mb-3" style="width: 18rem; margin: 0 auto;">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Name</span>
+                    </div>
+                    <input type="text" class="form-control" name="list_name" value="My List">
+                </div>
+                <button class="btn btn-outline-info">Create List</button>
+            </form>
+            <br>
         {% endif %}
-      </ol>
     </div>
 
-    <form METHOD="DELETE" action="/profile"><button class="btn btn-outline-danger">Delete Account</button></form>
+    <button class="btn btn-danger"
+            onclick="make_req('/profile', 'DELETE', 'message-target')">Delete
+    </button>
+
+    <script src="../static/js/req.js"></script>
   </body>
 </html>
