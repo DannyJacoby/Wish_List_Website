@@ -5,11 +5,14 @@
     <title>Admin</title>
 </head>
 <body>
-    <nav>
-        <form action="/profile"><button>Profile</button></form><br>
-        <form action="/login"><button>Login</button></form><br>
-        <form action="/account/create"><button>Create Account</button></form><br>
-    </nav>
+    <nav class="header">
+        {% if is_signed_in %}
+            <form action="/profile"><button>Profile</button></form>
+            <form action="/logout"><button>Logout</button></form>
+        {% else %}
+            <form action="/"><button>Home</button></form><br>
+        {% endif %}
+      </nav>
     <img src="../static/img/wishlist_logo.png" alt="Logo">
 </body>
 </html>

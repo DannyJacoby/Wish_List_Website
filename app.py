@@ -239,15 +239,13 @@ def modify_wishlist(list_id):
 @api.route("/wishlist/<list_id>/<item_id>")
 def view_wishlist_item(list_id, item_id):
 
-    this_item = item_serialize(item_id)
     user_list = list_serializer(list_id)
+    this_item = item_serialize(item_id, user_list['user_list'][0]['itemposition'], user_list['user_list'][0]['priority'])
 
-    #TESTING
     print(this_item)
-    print(user_list)
 
     return render_template("wishlist_item.html", wishlist={
-        "list_id": user_list['user']['userid'],
+        "list_id": list_id,
         "item": this_item
     }, is_signed_in  = session.get("user_id", None) is not None)
 
@@ -255,13 +253,19 @@ def view_wishlist_item(list_id, item_id):
 @api.route("/wishlist/<list_id>/<item_id>", methods=["PUT", "POST", "DELETE"])
 @logged_in
 def modify_wishlist_item(list_id, item_id):
+
+    user_list = list_serializer(list_id)
+    this_item = item_serialize(item_id, user_list['user_list'][0]['position'], user_list['user_list'][0]['priority'])
+
+    print(this_item)
+
     if request.method == "PUT":
         # UPDATE ITEM
 
         return render_template("wishlist_item.html", item_put=True, wishlist={
-            "list_id": 1,
-            "item": {"id": 1, "title": "item1", "url": "https://foo.com", "image_url": "https://foo.png", "position": 3,
-                     "priority": 0}
+            "list_id": list_id,
+            "item": {"id": this_item['item'], "title": this_item['title'], "url": this_item['url'], "image_url": this_item['imageurl'], "position": this_item['position'],
+                     "priority": this_item['priority']}
         }, is_signed_in = session.get("user_id", None) is not None)
 
     elif request.method == "POST":
@@ -269,14 +273,14 @@ def modify_wishlist_item(list_id, item_id):
         # ADD A ITEM
 
         return redirect(
-            url_for("view_wishlist", list_id=session['user_id'], list_modified={"id": 3, "action": "added", "success": True}, is_signed_in = session.get("user_id", None) is not None ))
+            url_for("view_wishlist", list_id=list_id, list_modified={"id": list_id, "action": "added", "success": True}, is_signed_in = session.get("user_id", None) is not None ))
 
     # DELETE
     else:
         #DELETE ITEM
 
         return redirect(
-            url_for("view_wishlist", list_id=session['user_id'], list_modified={"id": 3, "action": "deleted", "success": True}, is_signed_in = session.get("user_id", None) is not None ))
+            url_for("view_wishlist", list_id=list_id, list_modified={"id": list_id, "action": "deleted", "success": True}, is_signed_in = session.get("user_id", None) is not None ))
 
 
 # ------------------------------------- Admin Related Routes -------------------------------------
@@ -285,12 +289,10 @@ def modify_wishlist_item(list_id, item_id):
 @logged_in
 @is_admin
 def admin():
-    return render_template("admin.html", users=[
-        {"username": "user1", "email": "user1@gmail.com", "password": "password"},
-        {"username": "user2", "email": "user2@gmail.com", "password": "password"},
-        {"username": "user3", "email": "user3@gmail.com", "password": "password"},
-        {"username": "user4", "email": "user4@gmail.com", "password": "password"},
-    ])
+    list_users = users.select().execute().all()
+    list_items = items.select().execute().all()
+
+    return render_template("admin.html", users=list_users, items=list_items)
 
 
 @api.errorhandler(404)

@@ -21,8 +21,9 @@
     <div class="wlists">
         <ol>
           <h2>{{ wishlist.name }}</h2>
+          {% print(wishlist['id']) %}
           {%for i in wishlist['item_list'] %}
-            <li><h4><a href= "wishlist_item/{{i.item_list}}">{{ i.title }}</a></h4>
+            <li><h4><a href= "/wishlist/{{wishlist['id']}}/{{i.item_list}}">{{ i.title }}</a></h4>
                 <br>{{i.Description}}
                 <br><a href = "{{i.url}}">Link</a>
                 <br><img src="{{i.image}}" alt={{i.title}} width="300" height="300">
