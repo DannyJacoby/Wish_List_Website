@@ -312,6 +312,7 @@ def admin():
 @is_admin
 def delete_user(user_id):
     users.delete().where(users.c.userid == user_id).execute()
+    lists.delete.where(lists.c.userid == user_id).execute().all()
     data = {"message": "Account deleted successfully!"}
 
     if int(user_id) == int(session["user_id"]):
