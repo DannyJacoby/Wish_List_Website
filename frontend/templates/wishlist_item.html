@@ -33,5 +33,27 @@
             </div>
         </div>
     </li>
+    <form method="POST" action="#">
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Description</span>
+            </div>
+            <input type="text" class="form-control" id="description" name="description" value="{{ item.description }}">
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">URL</span>
+            </div>
+            <input type="text" class="form-control" id="url" name="url" value="{{ item.url }}">
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Image URL</span>
+            </div>
+            <input type="text" class="form-control" id="imageurl" name="imageurl" value="{{ item.imageurl }}">
+        </div>
+
+        <input type="submit" value="Save Changes" class="btn btn-outline-info">
+    </form>
     
 </body>
