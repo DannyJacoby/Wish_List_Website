@@ -7,7 +7,7 @@
  * data - the json data to pass to PUT requests
  */
 let make_req = async (route, method, target_id, data) => {
-    let init =  {method: method};
+    let init = {method: method};
 
     if (method === "PUT") {
         init.headers = {'Content-Type': 'application/json'};
