@@ -170,7 +170,8 @@ def profile():
             "wishlist_name": list_serialized['user_list'][0]['listname'] if len(
                 list_serialized['user_list']) != 0 else "No List",
             "wishlist": list_serialized['item_list']
-        })
+        },is_signed_in=session.get("user_id", None) is not None,
+            has_lists=len(list_serialized['user_list']) != 0, i_am_admin=list_serialized['user']['isadmin']==1)
 
     elif request.method == "POST":
         new_username = request.form.get("user")
@@ -195,7 +196,8 @@ def profile():
             "wishlist_name": list_serialized['user_list'][0]['listname'] if len(
                 list_serialized['user_list']) != 0 else "No List",
             "wishlist": list_serialized['item_list']
-        }, successes=successes)
+        }, successes=successes, is_signed_in=session.get("user_id", None) is not None, 
+            has_lists=len(list_serialized['user_list']) != 0)
 
     # DELETE
     else:
@@ -217,7 +219,7 @@ def view_wishlist(list_id):
         "name": list_serialized['user_list'][0]['listname'],
         "id": list_id,
         "item_list": list_serialized['item_list']
-    }, is_signed_in=session.get("user_id", None) is not None)
+    }, is_signed_in=session.get("user_id", None) is not None, i_am_admin=list_serialized['user']['isadmin']==1)
 
 
 @api.route("/wishlist/<list_id>", methods=["PUT", "POST", "DELETE"])
@@ -253,6 +255,7 @@ def view_wishlist_item(list_id, item_id):
     this_item = item_serialize(item_id, user_list['user_list'][0]['itemposition'],
                                user_list['user_list'][0]['priority'])
 
+    # Testing if we got to the item's page while the html page is under construction
     print(this_item)
 
     return render_template("wishlist_item.html", wishlist={
@@ -267,6 +270,7 @@ def modify_wishlist_item(list_id, item_id):
     user_list = list_serializer(list_id)
     this_item = item_serialize(item_id, user_list['user_list'][0]['position'], user_list['user_list'][0]['priority'])
 
+    # Testing if we got to the item's page while the html page is under construction
     print(this_item)
 
     if request.method == "PUT":

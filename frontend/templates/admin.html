@@ -9,8 +9,11 @@
 <body class="text-center">
     <nav class="header">
         {% if is_signed_in %}
-            <form action="/profile"><button>Profile</button></form>
-            <form action="/logout"><button>Logout</button></form>
+        <form action="/profile"><button>Profile</button></form>
+        <form action="/logout"><button>Logout</button></form>
+            {% if i_am_admin %}
+                <form action="/admin"><button>Admin</button></form>
+            {% endif %}
         {% else %}
             <form action="/"><button>Home</button></form><br>
         {% endif %}
