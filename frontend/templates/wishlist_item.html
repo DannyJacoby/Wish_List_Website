@@ -16,9 +16,22 @@
         {% endif %}
         <img class="header-img" src="../static/img/wishlist_logo.png" alt="Logo">
     </nav><br>
-
-    <img src="../static/img/wishlist_logo.png" alt="Logo">
-    <form action="/logout"><button>Logout</button></form>
-    <br>
+    <h2>{{ wishlist['item'].title}} </h2>
+    <li>
+        <div class="card shadow" style="width: 300px;">
+            <img class="card-img-top wishlist-img" src="{{wishlist.item.image}}" alt='{{wishlist.item.title}}'>
+            <hr>
+            <div class="card-body">
+                <h5 class="card-title">{{ wishlist['item'].title}}</h5>
+                <p class="card-text">{{ wishlist['item'].description}}</p>
+                <a href="{{wishlist['item'].url}}" class="btn btn-primary">Link</a>
+                {% if is_signed_in %}
+                <button class="btn btn-danger"
+                onclick="make_req('/wishlist', 'DELETE', 'message-target')">Delete
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </li>
     
 </body>
