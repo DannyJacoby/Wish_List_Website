@@ -55,15 +55,15 @@ def _session_destroy():
     session.pop("user_id", None)
 
 
-def item_serialize(item_id, position, priority):
+def item_serialize(item_id, priority):
     item = items.select(items.c.itemid == item_id).execute().first()
+
     return {
         "item": item['itemid'],
         "title": item['title'],
         "description": item['description'],
         "url": item['url'],
         "image": item['imageurl'],
-        "position": position,
         "priority": priority
     }
 
@@ -75,7 +75,7 @@ def list_serializer(user_id):
     # list = pk, name, user id, item id, item position, priority
     itemlist = []
     for obj in userlist:
-        item = item_serialize(obj['itemid'], obj['itemposition'], obj['priority'])
+        item = item_serialize(obj['itemid'], obj['priority'])
 
         itemlist.append(item)
 
@@ -225,7 +225,9 @@ def view_wishlist(list_id):
 @api.route("/wishlist/<list_id>", methods=["PUT", "POST", "DELETE"])
 @logged_in
 def modify_wishlist(list_id):
+    print(list_id)
     list_serialized = list_serializer(list_id)
+
     if request.method == "PUT":
         # UPDATE LIST NAME (?)
         # NOT NEEDED/USED ATM, WILL BE USED LATER
@@ -237,7 +239,33 @@ def modify_wishlist(list_id):
 
     elif request.method == "POST":
         # ADD item to this list
-        
+        new_title = request.form.get("title")
+        new_description = request.form.get("description")
+        new_url = request.form.get("url")
+        new_imageurl = request.form.get("imageurl")
+
+        item = items.select(items.c.title == "new_title").execute().first()
+
+        if item == None:
+            # Sorting stuff that doesn't work
+            # print(list_serialized['item_list']['position'])
+            # position = list_serialized['item_list']['position'] + 1
+            con.execute(items.insert(), url=new_url, description=new_description, imageurl=new_imageurl, title=new_title)
+            item = items.select(items.c.title == new_title and items.c.description == new_description).execute().first()
+            con.execute(lists.insert(), itemid=item['itemid'], listid=session['user_id'], listname="WishList", userid=session['user_id'], itemposition=0, priority=0)
+            
+            list_serialized = list_serializer(list_id)
+
+            return render_template("wishlist.html", wishlist={
+                        "name": list_serialized['user_list'][0]['listname'],
+                        "id": list_id,
+                        "item_list": list_serialized['item_list']
+                        }, is_signed_in=session.get("user_id", None) is not None, 
+                        i_am_admin=list_serialized['user']['isadmin']==1)
+        else:
+            print("nothing")
+            # don't insert
+
         return redirect(url_for("profile", list_modified={"id": 3, "action": "added", "success": True}))
 
     # DELETE
@@ -252,8 +280,7 @@ def modify_wishlist(list_id):
 @api.route("/wishlist/<list_id>/<item_id>")
 def view_wishlist_item(list_id, item_id):
     user_list = list_serializer(list_id)
-    this_item = item_serialize(item_id, user_list['user_list'][0]['itemposition'],
-                               user_list['user_list'][0]['priority'])
+    this_item = item_serialize(item_id, user_list['user_list'][0]['priority'])
 
     # Testing if we got to the item's page while the html page is under construction
     print(this_item)
@@ -268,7 +295,7 @@ def view_wishlist_item(list_id, item_id):
 @logged_in
 def modify_wishlist_item(list_id, item_id):
     user_list = list_serializer(list_id)
-    this_item = item_serialize(item_id, user_list['user_list'][0]['position'], user_list['user_list'][0]['priority'])
+    this_item = item_serialize(item_id, user_list['user_list'][0]['priority'])
 
     # Testing if we got to the item's page while the html page is under construction
     print(this_item)
