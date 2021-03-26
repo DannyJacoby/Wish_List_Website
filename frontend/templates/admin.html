@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="../static/css/App.css" type="text/css">
     <title>Admin</title>
 </head>
-<body>
+<body class="text-center">
     <nav class="header">
         {% if is_signed_in %}
             <form action="/profile"><button>Profile</button></form>
@@ -14,8 +14,8 @@
         {% else %}
             <form action="/"><button>Home</button></form><br>
         {% endif %}
-      </nav>
-    <img class="header-img" src="../static/img/wishlist_logo.png" alt="Logo">
+        <img class="header-img" src="../static/img/wishlist_logo.png" alt="Logo">
+    </nav><br>
     <div class="card">
         <div class="card-body card-text">
             <h3 class="card-title">Admin Actions</h3>
@@ -30,6 +30,7 @@
                         <th scope="col">Username</th>
                         <th scope="col">Email</th>
                         <th scope="col">Admin Status</th>
+                        <th scope="col"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -48,6 +49,7 @@
             </table>
         </div>
     </div>
+
     <script src="../static/js/req.js"></script>
 </body>
 </html>

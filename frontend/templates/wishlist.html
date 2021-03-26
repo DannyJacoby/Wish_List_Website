@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="../static/css/App.css" type="text/css">
     <title>Profile</title>
 </head>
-<body>
+<body class="text-center">
     <nav class="header">
         {% if is_signed_in %}
             <form action="/profile"><button>Profile</button></form>
@@ -14,23 +14,28 @@
         {% else %}
             <form action="/"><button>Home</button></form><br>
         {% endif %}
-      </nav>
-
-    <img src="../static/img/wishlist_logo.png" alt="Logo">
-    <br>
+        <img class="header-img" src="../static/img/wishlist_logo.png" alt="Logo">
+    </nav><br>
     
     <div class="wlists">
+        <h2>{{ wishlist.name }}</h2>
+        {% print(wishlist['id']) %}
+
         <ol>
-          <h2>{{ wishlist.name }}</h2>
-          {% print(wishlist['id']) %}
-          {%for i in wishlist['item_list'] %}
-            <li><h4><a href= "/wishlist/{{wishlist['id']}}/{{i.item_list}}">{{ i.title }}</a></h4>
-                <br>{{i.Description}}
-                <br><a href = "{{i.url}}">Link</a>
-                <br><img src="{{i.image}}" alt={{i.title}} width="300" height="300">
+            {%for i in wishlist['item_list'] %}
+            <li>
+                <div class="card shadow" style="width: 300px;">
+                    <img class="card-img-top wishlist-img" src="{{i.image}}" alt='{{i.title}}'>
+                    <hr>
+                    <div class="card-body">
+                        <h5 class="card-title">{{i.title}}</h5>
+                        <p class="card-text">{{i.description}}</p>
+                        <a href="{{i.url}}" class="btn btn-primary">Link</a>
+                    </div>
+                </div>
             </li>
-          {%endfor%}
+            {%endfor%}
         </ol>
       </div>
-
 </body>
+</html>

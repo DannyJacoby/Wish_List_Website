@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="../static/css/App.css" type="text/css">
     <title>Profile</title>
 </head>
-<body>
+<body class="text-center">
     <nav class="header">
         {% if is_signed_in %}
             <form action="/profile"><button>Profile</button></form>
@@ -14,7 +14,8 @@
         {% else %}
             <form action="/"><button>Home</button></form><br>
         {% endif %}
-      </nav>
+        <img class="header-img" src="../static/img/wishlist_logo.png" alt="Logo">
+    </nav><br>
 
     <img src="../static/img/wishlist_logo.png" alt="Logo">
     <form action="/logout"><button>Logout</button></form>

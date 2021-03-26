@@ -6,44 +6,55 @@
     <link rel="stylesheet" href="../static/css/App.css" type="text/css">
     <title>Profile</title>
 </head>
-<body>
-  <nav class="header">
-    {% if is_signed_in %}
+<body class="text-center">
+    <nav class="header shadow">
         <form action="/profile"><button>Profile</button></form>
         <form action="/logout"><button>Logout</button></form>
-    {% else %}
-        <form action="/"><button>Home</button></form><br>
-    {% endif %}
-  </nav>
+        <img class="header-img" src="../static/img/wishlist_logo.png" alt="Logo">
+    </nav><br>
 
-    <img src="../static/img/wishlist_logo.png" alt="Logo">
-    <form action="/logout"><button>Logout</button></form>
     <br>
     <h1>Welcome back, {{ user["username"] }}!</h1>
 
-    <div class="info">
-      <p>Edit account information:</p>
-      <form method="POST" action="/profile">
-        <label for="email">New Email:</label><br>
-        <input type="text" id="email" name="email" value="{{ user.email }}"><br>
-        <label for="user">New Username:</label><br>
-        <input type="text" id="user" name="user" value="{{ user.username }}"><br>
-        <label for="pass">New Password:</label><br>
-        <input type="password" id="pass" name="pass" value="{{ user.password }}"><br>
-        <br><br>
-        <input type="submit" value="Save Changes"> 
-      </form>
-    </div>
-    <br>
-    <div class="wlists">
-      <ol>
-        <h2><a href="wishlist/{{ session.user_id }}.html">{{ user["wishlist_name"] }}</a></h2>
-        {%for i in user["wishlist"] %}
-          <li><a href= "wishlist_item/{{ session.user_id }}/{{i.item}}">{{ i["title"] }}</a></li>
-        {%endfor%}
-      </ol>
+    <div class="card shadow" style="width: 18rem;">
+        <div class="card-body">
+            <h5 class="card-title">Edit account information:</h5>
+            <form method="POST" action="/profile">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Email</span>
+                    </div>
+                    <input type="text" class="form-control" id="email" name="email" value="{{ user.email }}">
+                </div>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Username</span>
+                    </div>
+                    <input type="text" class="form-control" id="user" name="user" value="{{ user.username }}">
+                </div>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Password</span>
+                    </div>
+                    <input type="password" class="form-control" id="pass" name="pass" value="{{ user.password }}">
+                </div>
+
+                <input type="submit" value="Save Changes" class="btn btn-outline-info">
+            </form>
+        </div>
     </div>
 
-    <form METHOD="DELETE" action="/profile"><button>Delete Account</button></form>
+    <br>
+    <div class="wlists">
+        <h2><a href="wishlist/{{ session.user_id }}.html">{{ user["wishlist_name"] }}</a></h2>
+        <ol>
+            {%for i in user["wishlist"] %}
+                <li><a href= "wishlist_item/{{ session.user_id }}/{{i.item}}">{{ i["title"] }}</a></li>
+            {%endfor%}
+        </ol>
+    </div>
+    </div>
+
+    <form METHOD="DELETE" action="/profile"><button class="btn btn-outline-danger">Delete Account</button></form>
   </body>
 </html>

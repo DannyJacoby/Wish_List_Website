@@ -6,12 +6,12 @@
     <link rel="stylesheet" href="../static/css/App.css" type="text/css">
     <title>Home</title>
 </head>
-<body>
-    <nav>
-        <form action="/login"><button>Login</button></form><br>
-        <form action="/account/create"><button>Create Account</button></form><br>
+<body class="text-center">
+    <nav class="header shadow">
+        <form action="/login"><button>Login</button></form>
+        <form action="/account/create"><button>Create Account</button></form>
+        <img src="../static/img/wishlist_logo.png" alt="Logo">
     </nav>
-    <img src="../static/img/wishlist_logo.png" alt="Logo">
     <h1>Home Page</h1>
     {% if messages %}
     <p>{{messages}}</p>
