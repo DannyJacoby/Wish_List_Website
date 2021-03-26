@@ -16,7 +16,9 @@
         {% endif %}
         <img class="header-img" src="../static/img/wishlist_logo.png" alt="Logo">
     </nav><br>
-    
+
+    <h4 class="text-success" id="message-target"></h4>
+
     <div class="wlists">
         <h2>{{ wishlist.name }}</h2>
         <ol>
@@ -35,5 +37,11 @@
             {%endfor%}
         </ol>
       </div>
+
+        <button class="btn btn-danger"
+                onclick="make_req('/wishlist/{{ wishlist.id }}', 'PUT', 'message-target', {'foo': 'foo'})">
+        PUT</button>
+
+    <script src="../static/js/req.js"></script>
 </body>
 </html>

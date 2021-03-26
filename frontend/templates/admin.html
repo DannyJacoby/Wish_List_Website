@@ -8,17 +8,12 @@
 </head>
 <body class="text-center">
     <nav class="header">
-        {% if is_signed_in %}
-        <form action="/profile"><button>Profile</button></form>
-        <form action="/logout"><button>Logout</button></form>
-            {% if i_am_admin %}
-                <form action="/admin"><button>Admin</button></form>
-            {% endif %}
-        {% else %}
-            <form action="/"><button>Home</button></form><br>
-        {% endif %}
+            <form action="/profile"><button>Profile</button></form>
+            <form action="/logout"><button>Logout</button></form>
+            <form action="/admin"><button>Admin</button></form>
         <img class="header-img" src="../static/img/wishlist_logo.png" alt="Logo">
     </nav><br>
+
     <div class="card">
         <div class="card-body card-text">
             <h3 class="card-title">Admin Actions</h3>
@@ -43,9 +38,12 @@
                         <td>{{ users[i][1] }}</td>
                         <td>{{ users[i][2] }}</td>
                         <td>{{ users[i][3] == 1 }}</td>
-                        <td><button class="btn btn-danger"
-                                    onclick="make_req({{ users[i][0] }}, '/admin/user/', 'DELETE', 'message-target')">
-                            Delete</button></td>
+                        <td>
+                            <button class="btn btn-danger"
+                                    onclick="make_req('/admin/user/{{ users[i][0] }}', 'DELETE', 'message-target')">
+                                Delete
+                            </button>
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>
