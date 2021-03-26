@@ -6,30 +6,42 @@
     <link rel="stylesheet" href="../static/css/App.css" type="text/css">
     <title>Login</title>
 </head>
-<body>
-    <nav>
-        <form action="/"><button>Home</button></form><br>
-        <form action="/login"><button>Login</button></form><br>
-        <form action="/account/create"><button>Create Account</button></form><br>
+<body class="text-center">
+    <nav class="header shadow">
+        <form action="/"><button>Home</button></form>
+        <form action="/login"><button>Login</button></form>
+        <form action="/account/create"><button>Create Account</button></form>
+        <img src="../static/img/wishlist_logo.png" alt="Logo">
     </nav>
-    <img src="../static/img/wishlist_logo.png" alt="Logo">
-    <h1>Login</h1>
-    <form method="POST" action="/login">
-      <label for="user">Username:</label><br>
-      <input type="text" id="user" name="user"><br>
-      <label for="pass">Password:</label><br>
-      <input type="password" id="pass" name="pass"><br>
-      <br>
-      <input type="submit" value="Login">
-    </form>
+
+    <div class="card shadow" style="width: 18rem;">
+        <div class="card-body">
+            <h5 class="card-title">Login</h5>
+            <form method="POST" action="/login">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Username</span>
+                    </div>
+                    <input type="text" class="form-control" id="user" name="user">
+                </div>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Password</span>
+                    </div>
+                    <input type="password" class="form-control" id="pass" name="pass">
+                </div>
+
+                <input type="submit" value="Login" class="btn btn-outline-info">
+            </form>
+        </div>
+    </div>
 
     {% if login_failed %}
-      <p class="error"><strong>Error: Invalid username and/or password.</strong> 
-      <br>
-      {{ message }}</p>
+        <p class="error"><strong>{{ message }}</strong></p>
+        <br>
     {% endif %}
 
-    <br><br>
+    <br>
     <p class="bottom">Dont't have an account?  <a class="bottom" href="{{url_for('create_account')}}"> Sign Up here</a></p>
   </body>
 </html>
