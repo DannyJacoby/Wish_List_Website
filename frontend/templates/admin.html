@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="../static/css/App.css" type="text/css">
     <title>Admin</title>
 </head>
 <body>
@@ -13,6 +15,39 @@
             <form action="/"><button>Home</button></form><br>
         {% endif %}
       </nav>
-    <img src="../static/img/wishlist_logo.png" alt="Logo">
+    <img class="header-img" src="../static/img/wishlist_logo.png" alt="Logo">
+    <div class="card">
+        <div class="card-body card-text">
+            <h3 class="card-title">Admin Actions</h3>
+            <hr>
+            <h4 class="text-success" id="message-target"></h4>
+
+            <h5 class="card-title">All Users</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Username</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Admin Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for i in range(users | length) %}
+                    <tr>
+                        <th scope="row">{{ i + 1 }}</th>
+                        <td>{{ users[i][1] }}</td>
+                        <td>{{ users[i][2] }}</td>
+                        <td>{{ users[i][3] == 1 }}</td>
+                        <td><button class="btn btn-danger"
+                                    onclick="make_req({{ users[i][0] }}, '/admin/user/', 'DELETE', 'message-target')">
+                            Delete</button></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="../static/js/req.js"></script>
 </body>
 </html>
