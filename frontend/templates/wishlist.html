@@ -19,10 +19,7 @@
     
     <div class="wlists">
         <h2>{{ wishlist.name }}</h2>
-        {% print(wishlist['id']) %}
-
         <ol>
-<<<<<<< Updated upstream
             {%for i in wishlist['item_list'] %}
             <li>
                 <div class="card shadow" style="width: 300px;">
@@ -34,14 +31,6 @@
                         <a href="{{i.url}}" class="btn btn-primary">Link</a>
                     </div>
                 </div>
-=======
-          <h2>{{ wishlist.name }}</h2>
-          {%for i in wishlist['item_list'] %}
-            <li><h4><a href= "wishlist/{{ session.user_id }}/{{ i.item }}">{{ i.title }}</a></h4>
-                <br>{{ i.description }}<br>
-                <br><a href = "{{i.url}}">Link</a><br>
-                <br><img src="{{i.image}}" alt={{i.title}} width="300" height="300"><br>
->>>>>>> Stashed changes
             </li>
             {%endfor%}
         </ol>
