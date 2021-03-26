@@ -236,8 +236,8 @@ def modify_wishlist(list_id):
         }, is_signed_in=session.get("user_id", None) is not None)
 
     elif request.method == "POST":
-        # ADD LIST
-        # NOT NEEDED/USED ATM
+        # ADD item to this list
+        
         return redirect(url_for("profile", list_modified={"id": 3, "action": "added", "success": True}))
 
     # DELETE
