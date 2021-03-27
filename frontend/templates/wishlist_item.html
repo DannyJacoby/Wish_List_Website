@@ -3,57 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="stylesheet" href="../static/css/App.css" type="text/css">
-    <title>Profile</title>
+    <link rel="stylesheet" href="/static/css/App.css" type="text/css">
+    <title>Wishlist Item</title>
 </head>
 <body class="text-center">
-    <nav class="header">
+    <nav class="header shadow">
         {% if is_signed_in %}
             <form action="/profile"><button>Profile</button></form>
             <form action="/logout"><button>Logout</button></form>
         {% else %}
             <form action="/"><button>Home</button></form><br>
         {% endif %}
-        <img class="header-img" src="../static/img/wishlist_logo.png" alt="Logo">
+        <img class="header-img" src="/static/img/wishlist_logo.png" alt="Logo">
     </nav><br>
-    <h2>{{ wishlist['item'].title}} </h2>
-    <li>
-        <div class="card shadow" style="width: 300px;">
-            <img class="card-img-top wishlist-img" src="{{wishlist.item.image}}" alt='{{wishlist.item.title}}'>
-            <hr>
-            <div class="card-body">
-                <h5 class="card-title">{{ wishlist['item'].title}}</h5>
-                <p class="card-text">{{ wishlist['item'].description}}</p>
-                <a href="{{wishlist['item'].url}}" class="btn btn-primary">Link</a>
-                {% if is_signed_in %}
-                <button class="btn btn-danger"
-                onclick="make_req('/wishlist', 'DELETE', 'message-target')">Delete
-                </button>
-                {% endif %}
-            </div>
-        </div>
-    </li>
-    <form method="POST" action="#">
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text">Description</span>
-            </div>
-            <input type="text" class="form-control" id="description" name="description" value="{{ item.description }}">
-        </div>
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text">URL</span>
-            </div>
-            <input type="text" class="form-control" id="url" name="url" value="{{ item.url }}">
-        </div>
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text">Image URL</span>
-            </div>
-            <input type="text" class="form-control" id="imageurl" name="imageurl" value="{{ item.imageurl }}">
-        </div>
 
-        <input type="submit" value="Save Changes" class="btn btn-outline-info">
-    </form>
-    
+    <h4 class="text-success" id="message-target"></h4>
+
+    <div class="card shadow" style="width: 300px; margin: 0 auto;">
+        <img class="card-img-top wishlist-img" src="{{wishlist.item.image}}" alt='{{wishlist.item.title}}'>
+        <hr>
+        <div class="card-body">
+            <h5 class="card-title">{{ wishlist['item'].title}}</h5>
+            <p class="card-text">{{ wishlist['item'].description}}</p>
+            <a href="{{wishlist['item'].url}}" class="btn btn-primary">Purchase</a>
+            {% if is_signed_in %}
+            <button class="btn btn-danger"
+                    onclick="make_req('/wishlist/{{ wishlist.list_id }}/{{ wishlist.item.item }}', 'DELETE', 'message-target')">Delete
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card shadow" style="width: 30rem;">
+        <div class="card-body">
+            <h5 class="card-title">Add a new item:</h5>
+            <form method="POST" action="/wishlist/{{ wishlist.item }}/{{ wishlist.item.item }}">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Title</span>
+                    </div>
+                    <input type="text" class="form-control" id="title" name="title" value="{{ wishlist.item.title }}">
+                </div>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Description</span>
+                    </div>
+                    <textarea class="form-control" id="description" name="description" rows="4" cols="50">{{ wishlist.item.description }}
+                    </textarea>
+                </div>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Url</span>
+                    </div>
+                    <input type="text" class="form-control" id="url" name="url" value="{{ wishlist.item.url }}">
+                </div>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Image Url</span>
+                    </div>
+                    <input type="text" class="form-control" id="imageurl" name="imageurl" value="{{ wishlist.item.imageurl }}">
+                </div>
+
+                <input type="submit" value="Add Item" class="btn btn-outline-info">
+            </form><br>
+        </div>
+    </div>
+
+    <script src="/static/js/req.js"></script>
 </body>

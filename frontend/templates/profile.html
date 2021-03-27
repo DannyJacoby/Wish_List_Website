@@ -62,7 +62,11 @@
             <h2><a href="wishlist/{{ session.user_id }}.html">{{ user["wishlist_name"] }}</a></h2>
             <ol>
                 {%for i in user["wishlist"] %}
-                    <li><a href= "wishlist/{{ session.user_id }}/{{i.item}}">{{ i["title"] }}</a></li>
+                    <li>
+                        <form action="/wishlist/{{ session.user_id }}/{{i.item}}">
+                            <button class="btn btn-outline-info">{{ i["title"] }}</button>
+                        </form><br>
+                    </li>
                 {%endfor%}
             </ol>
         {% else %}
