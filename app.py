@@ -223,7 +223,7 @@ def view_wishlist(list_id):
 @api.route("/wishlist/<list_id>", methods=["PUT", "POST", "DELETE"])
 @logged_in
 def modify_wishlist(list_id):
-    
+
     list_serialized = list_serializer(list_id)
 
     if request.method == "PUT":
@@ -290,17 +290,40 @@ def view_wishlist_item(list_id, item_id):
 @logged_in
 def modify_wishlist_item(list_id, item_id):
     user_list = list_serializer(list_id)
-    this_item = item_serialize(item_id, user_list['user_list'][0]['itemposition'], user_list['user_list'][0]['priority'])
 
+    this_item = item_serialize(item_id, user_list['user_list'][0]['priority'])
+
+    # Testing if we got to the item's page while the html page is under construction
     if request.method == "PUT":
         # UPDATE ITEM
         return {"message": "Item updated successfully!"}
 
     elif request.method == "POST":
-        # ADD A ITEM
-        return redirect(
-            url_for("view_wishlist", list_id=list_id, list_modified={"id": list_id, "action": "added", "success": True},
-                    is_signed_in=session.get("user_id", None) is not None))
+        # UPDATE ITEM
+        new_description = request.form.get("description")
+        new_url = request.form.get("url")
+        new_imageurl = request.form.get("imageurl")
+
+
+        successes = {
+            "username": True if new_description is not None else False,
+            "email": True if new_url is not None else False,
+            "password": True if new_imageurl is not None else False,
+        }
+
+        items.update().where(items.c.itemid == item_id).values(description=new_description, url=new_url, imageurl=new_imageurl)
+        
+        list_serialized = list_serializer(session['user_id'])
+
+        return render_template("profile.html", user={
+            "username": list_serialized['user']['username'],
+            "password": list_serialized['user']['userpassword'],
+            "email": list_serialized['user']['email'],
+            "wishlist_name": list_serialized['user_list'][0]['listname'] if len(
+                list_serialized['user_list']) != 0 else "No List",
+            "wishlist": list_serialized['item_list']
+        }, successes=successes, is_signed_in=session.get("user_id", None) is not None, 
+            has_lists=len(list_serialized['user_list']) != 0)
 
     # DELETE
     else:
