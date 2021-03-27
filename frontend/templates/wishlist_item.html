@@ -36,8 +36,8 @@
 
     <div class="card shadow" style="width: 30rem;">
         <div class="card-body">
-            <h5 class="card-title">Add a new item:</h5>
-            <form method="POST" action="/wishlist/{{ wishlist.item }}/{{ wishlist.item.item }}">
+            <h5 class="card-title">Update item:</h5>
+            <form action="/wishlist/{{ wishlist.list_id }}/{{ wishlist.item.item }}" method="POST">
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
                         <span class="input-group-text">Title</span>
@@ -64,8 +64,8 @@
                     <input type="text" class="form-control" id="imageurl" name="imageurl" value="{{ wishlist.item.image }}">
                 </div>
 
-                <input type="submit" value="Add Item" class="btn btn-outline-info">
-            </form><br>
+                <button class="btn btn-success" id="updatebtn">Update Item</button>
+                </form><br>
         </div>
     </div>
 

@@ -109,7 +109,7 @@ def login():
         username = request.form.get("user")
         password = request.form.get("pass")
 
-        user = users.select(users.c.username == username, users.c.userpassword == password).execute().first()
+        user = users.select().where(users.c.username == username, users.c.userpassword == password).execute().first()
 
         if user != None:
             _session_create(user['username'], user['isadmin'] == 1, user['userid'])
@@ -258,10 +258,14 @@ def modify_wishlist(list_id):
                         }, is_signed_in=session.get("user_id", None) is not None, 
                         i_am_admin=list_serialized['user']['isadmin']==1)
         else:
-            print("nothing")
-            # don't insert
-
-        return redirect(url_for("profile", list_modified={"id": 3, "action": "added", "success": True}))
+            con.execute(lists.insert(), itemid=['itemid'], listid=session['user_id'], listname="WishList", userid=session['user_id'], itemposition=0, priority=0)
+            list_serialized = list_serializer(list_id)
+            return render_template("wishlist.html", wishlist={
+                        "name": list_serialized['user_list'][0]['listname'],
+                        "id": list_id,
+                        "item_list": list_serialized['item_list']
+                        }, is_signed_in=session.get("user_id", None) is not None, 
+                        i_am_admin=list_serialized['user']['isadmin']==1)
 
     # DELETE
     else:
@@ -293,6 +297,8 @@ def modify_wishlist_item(list_id, item_id):
     # Testing if we got to the item's page while the html page is under construction
     if request.method == "PUT":
         # UPDATE ITEM
+
+        
         return {"message": "Item updated successfully!"}
 
     elif request.method == "POST":
@@ -307,20 +313,10 @@ def modify_wishlist_item(list_id, item_id):
             "email": True if new_url is not None else False,
             "password": True if new_imageurl is not None else False,
         }
+       
+        items.update().where(items.c.itemid == item_id).values(description=new_description, url=new_url, imageurl=new_imageurl).execute()
 
-        items.update().where(items.c.itemid == item_id).values(description=new_description, url=new_url, imageurl=new_imageurl)
-        
-        list_serialized = list_serializer(session['user_id'])
-
-        return render_template("profile.html", user={
-            "username": list_serialized['user']['username'],
-            "password": list_serialized['user']['userpassword'],
-            "email": list_serialized['user']['email'],
-            "wishlist_name": list_serialized['user_list'][0]['listname'] if len(
-                list_serialized['user_list']) != 0 else "No List",
-            "wishlist": list_serialized['item_list']
-        }, successes=successes, is_signed_in=session.get("user_id", None) is not None, 
-            has_lists=len(list_serialized['user_list']) != 0)
+        return redirect(url_for("profile"))
 
     # DELETE
     else:
