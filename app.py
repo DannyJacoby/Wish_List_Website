@@ -214,7 +214,7 @@ def view_wishlist(list_id):
         "name": list_serialized['user_list'][0]['listname'],
         "id": list_id,
         "item_list": list_serialized['item_list']
-    }, is_signed_in=session.get("user_id", None) is not None, i_am_admin=list_serialized['user']['isadmin']==1)
+    }, is_signed_in=session.get("user_id", None) == list_id, i_am_admin=list_serialized['user']['isadmin']==1)
 
 
 @api.route("/wishlist/<list_id>", methods=["PUT", "POST", "DELETE"])
@@ -230,7 +230,7 @@ def modify_wishlist(list_id):
             "name": list_serialized['user_list'][0]['listname'],
             "id": session['user_id'],
             "items": list_serialized['item_list']
-        }, is_signed_in=session.get("user_id", None) is not None)
+        }, is_signed_in=session.get("user_id", None) == list_id)
 
     elif request.method == "POST":
         # ADD item to this list
@@ -264,7 +264,7 @@ def modify_wishlist(list_id):
                         "name": list_serialized['user_list'][0]['listname'],
                         "id": list_id,
                         "item_list": list_serialized['item_list']
-                        }, is_signed_in=session.get("user_id", None) is not None, 
+                        }, is_signed_in=session.get("user_id", None) == list_id, 
                         i_am_admin=list_serialized['user']['isadmin']==1)
 
     # DELETE
