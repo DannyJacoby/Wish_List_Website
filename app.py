@@ -109,10 +109,7 @@ def login():
         username = request.form.get("user")
         password = request.form.get("pass")
 
-        try:
-            user = users.select(users.c.username == username, users.c.userpassword == password).execute().first()
-        except Exception:
-            print(Exception)
+        user = users.select(users.c.username == username, users.c.userpassword == password).execute().first()
 
         if user != None:
             _session_create(user['username'], user['isadmin'] == 1, user['userid'])
