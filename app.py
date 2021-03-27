@@ -57,7 +57,6 @@ def _session_destroy():
 
 def item_serialize(item_id, priority):
     item = items.select(items.c.itemid == item_id).execute().first()
-
     return {
         "item": item['itemid'],
         "title": item['title'],
@@ -111,7 +110,7 @@ def login():
         password = request.form.get("pass")
 
         try:
-            user = users.select(users.c.username == username and users.c.userpassword == password).execute().first()
+            user = users.select(users.c.username == username, users.c.userpassword == password).execute().first()
         except Exception:
             print(Exception)
 
@@ -160,7 +159,6 @@ def create_account():
 def profile():
     if request.method == "GET":
         list_modified = request.args.get("list_modified", None)
-
         list_serialized = list_serializer(session['user_id'])
 
         return render_template("profile.html", list_modified=list_modified, user={
@@ -282,9 +280,6 @@ def view_wishlist_item(list_id, item_id):
     user_list = list_serializer(list_id)
     this_item = item_serialize(item_id, user_list['user_list'][0]['priority'])
 
-    # Testing if we got to the item's page while the html page is under construction
-    print(this_item)
-
     return render_template("wishlist_item.html", wishlist={
         "list_id": list_id,
         "item": this_item
@@ -295,10 +290,7 @@ def view_wishlist_item(list_id, item_id):
 @logged_in
 def modify_wishlist_item(list_id, item_id):
     user_list = list_serializer(list_id)
-    this_item = item_serialize(item_id, user_list['user_list'][0]['priority'])
-
-    # Testing if we got to the item's page while the html page is under construction
-    print(this_item)
+    this_item = item_serialize(item_id, user_list['user_list'][0]['itemposition'], user_list['user_list'][0]['priority'])
 
     if request.method == "PUT":
         # UPDATE ITEM
@@ -313,7 +305,8 @@ def modify_wishlist_item(list_id, item_id):
     # DELETE
     else:
         # DELETE ITEM
-        return {"message": "Item deleted successfully!", "redirect": f"wishlist/{list_id}"}
+        lists.delete().where(lists.c.listid == list_id, lists.c.itemid == item_id).execute()
+        return {"message": "Item deleted successfully!", "redirect": f"/wishlist/{list_id}"}
 
 
 # ------------------------------------- Admin Related Routes -------------------------------------
@@ -339,7 +332,7 @@ def admin():
 @is_admin
 def delete_user(user_id):
     users.delete().where(users.c.userid == user_id).execute()
-    lists.delete.where(lists.c.userid == user_id).execute().all()
+    lists.delete().where(lists.c.userid == user_id).execute().all()
     data = {"message": "Account deleted successfully!"}
 
     if int(user_id) == int(session["user_id"]):
