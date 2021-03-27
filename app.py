@@ -225,7 +225,7 @@ def view_wishlist(list_id):
 @api.route("/wishlist/<list_id>", methods=["PUT", "POST", "DELETE"])
 @logged_in
 def modify_wishlist(list_id):
-    print(list_id)
+    
     list_serialized = list_serializer(list_id)
 
     if request.method == "PUT":
