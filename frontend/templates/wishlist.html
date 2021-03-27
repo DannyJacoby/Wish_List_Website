@@ -38,20 +38,7 @@
         </ol>
       </div>
 
-        <button class="btn btn-danger"
-                onclick="make_req('/wishlist/{{ wishlist.id }}', 'PUT', 'message-target', {'foo': 'foo'})">
-        PUT</button>
-
-        <script>
-            if (title.length === 0) {
-                e.preventDefault();
-                return;
-            } 
-
-            let data = {"title": title}
-
-            await make_req('/wishlist/{{ wishlist.id }}', 'PUT', 'message-target', data);
-        </script>
+    
         
     <script src="../static/js/req.js"></script>
 </body>

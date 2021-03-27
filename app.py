@@ -284,7 +284,7 @@ def view_wishlist_item(list_id, item_id):
     return render_template("wishlist_item.html", wishlist={
         "list_id": list_id,
         "item": this_item
-    }, is_signed_in=session.get("user_id", None) is not None)
+    }, is_signed_in=session.get("user_id", None) == list_id)
 
 
 @api.route("/wishlist/<list_id>/<item_id>", methods=["PUT", "POST", "DELETE"])
